@@ -1,0 +1,23 @@
+{
+  "name": "cdk-common",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "author": "panicboat",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.4.13",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-ec2": "^1.117.0",
+    "@aws-cdk/aws-iam": "^1.117.0",
+    "ip": "^1.1.5"
+  }
+}
