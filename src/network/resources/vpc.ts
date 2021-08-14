@@ -16,6 +16,8 @@ export class Vpc extends Resource implements IVpc {
   public createResources(props: Props): void {
     const vpc = new CfnVPC(this.scope, 'Vpc', {
       cidrBlock: props.cidrBlock,
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
       tags: [{ key: 'Name', value: 'main' }],
     });
     new cdk.CfnOutput(this.scope, `ExportVpcId`, {

@@ -1,41 +1,105 @@
 import * as cdk from '@aws-cdk/core';
-import { CfnInternetGateway, CfnVPCGatewayAttachment, CfnEIP, CfnNatGateway } from '@aws-cdk/aws-ec2';
+import { CfnInternetGateway, CfnVPCGatewayAttachment, CfnEIP, CfnNatGateway, CfnTransitGateway, CfnTransitGatewayAttachment } from '@aws-cdk/aws-ec2';
+import { CfnResourceShare } from '@aws-cdk/aws-ram';
 import { Resource } from '../resource';
 
 interface Props {
   projectName: string;
-  vpcId: string;
+  vpcId: string
   subnets: {
-    protected: string[]
+    public: string[],
+    protected: string[],
+  },
+  principal: {
+    accountIds: string[];
+    transitGatewayId: string;
   }
+  isFoundation: boolean;
 }
 interface IGateway {
-  readonly gatewayId: string;
-  readonly natGatewayId: string[];
+  readonly internetGatewayId: string;
+  readonly natGatewayIds: string[];
+  readonly transitGatewayId: string;
+  readonly tgwAttachmentId: string;
   createResources(props: Props): void;
 }
 export class Gateway extends Resource implements IGateway {
-  public gatewayId!: string;
-  public natGatewayId: string[] = [];
+  public internetGatewayId: string = '';
+  public natGatewayIds: string[] = [];
+  public transitGatewayId: string = '';
+  public tgwAttachmentId: string = '';
 
   public createResources(props: Props): void {
-    const igw = new CfnInternetGateway(this.scope, 'InternetGateway', {
+    this.createInternetGateway(this.scope, props);
+    if (props.isFoundation) {
+      // For master account
+      this.createNatGateway(this.scope, props);
+    }
+    if (props.isFoundation && 0 < props.principal.accountIds.length) {
+      // For master account
+      this.createTransitGateway(this.scope, this.stack, props);
+      this.createTransitGatewayAttachment(this.scope, props, this.transitGatewayId);
+    }
+    if (!props.isFoundation && 0 < props.principal.transitGatewayId.length) {
+      // For child accounts
+      this.createTransitGatewayAttachment(this.scope, props, props.principal.transitGatewayId);
+    }
+  }
+
+  private createInternetGateway(scope: cdk.Construct, props: Props): void {
+    const igw = new CfnInternetGateway(scope, 'InternetGateway', {
     });
-    new CfnVPCGatewayAttachment(this.scope, 'VpcGatewayAttachment', {
+    new CfnVPCGatewayAttachment(scope, 'VpcGatewayAttachment', {
       vpcId: props.vpcId,
       internetGatewayId: igw.ref,
     });
+    this.internetGatewayId = igw.ref;
+  }
+
+  private createNatGateway(scope: cdk.Construct, props: Props): void {
     let azName: string[] = this.getAvailabilityZoneNames();
     for (let i = 0; i < azName.length; i++) {
-      const eip = new CfnEIP(this.scope, `Eip${azName[i]}`, {
+      const eip = new CfnEIP(scope, `ElasticIp${azName[i]}`, {
         domain: 'vpc',
       });
-      const natGateway = new CfnNatGateway(this.scope, `NatGateway${azName[i]}`, {
+      const natGateway = new CfnNatGateway(scope, `NatGateway${azName[i]}`, {
         allocationId: cdk.Fn.getAtt(eip.logicalId, 'AllocationId').toString(),
-        subnetId: props.subnets.protected[i],
+        subnetId: props.subnets.public[i],
       });
-      this.natGatewayId.push(natGateway.ref);
+      this.natGatewayIds.push(natGateway.ref);
     }
-    this.gatewayId = igw.ref;
+  }
+
+  private createTransitGateway(scope: cdk.Construct, stack: cdk.Stack, props: Props): void {
+    const tgw = new CfnTransitGateway(scope, 'TransitGateway', {
+      autoAcceptSharedAttachments: 'enable',
+      defaultRouteTableAssociation: 'disable',
+      defaultRouteTablePropagation: 'disable',
+    });
+    new CfnResourceShare(scope, 'SharedTransitGateway', {
+      name: 'ResourceShare',
+      principals: props.principal.accountIds,
+      resourceArns: [
+        `arn:aws:ec2:${stack.region}:${stack.account}:transit-gateway/${cdk.Fn.getAtt(tgw.logicalId, 'Id').toString()}`,
+      ]
+    });
+    new cdk.CfnOutput(scope, `ExportTransitGateway`, {
+      value: cdk.Fn.getAtt(tgw.logicalId, 'Id').toString(),
+      exportName: `${props.projectName}:TransitGateway`,
+    });
+    this.transitGatewayId = cdk.Fn.getAtt(tgw.logicalId, 'Id').toString();
+  }
+
+  private createTransitGatewayAttachment(scope: cdk.Construct, props: Props, transitGatewayId: string): void {
+    const attachment = new CfnTransitGatewayAttachment(scope, `TransitGatewayAttachment`, {
+      transitGatewayId: transitGatewayId,
+      vpcId: props.vpcId,
+      subnetIds: props.subnets.protected,
+    });
+    new cdk.CfnOutput(scope, `ExportTransitGatewayAttachment`, {
+      value: attachment.ref,
+      exportName: `${props.projectName}:TransitGatewayAttachment`,
+    });
+    this.tgwAttachmentId = attachment.ref;
   }
 }
