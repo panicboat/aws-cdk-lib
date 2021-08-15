@@ -9,7 +9,6 @@ interface IIam {
   createResources(props: Props): void;
 }
 export class Iam extends Resource implements IIam {
-
   public createResources(props: Props): void {
     this.createEC2RoleforSSM(this.scope, props);
     this.createChatbotRole(this.scope, props);

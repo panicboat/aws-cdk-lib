@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import { CfnRoute, CfnRouteTable, CfnSubnetRouteTableAssociation } from '@aws-cdk/aws-ec2';
-import { Resource } from '../resource';
+import { Resource } from '../../resource';
 
 interface Props {
   projectName: string;
@@ -11,17 +11,17 @@ interface Props {
   subnets: {
     public: string[],
     protected: string[],
-  },
+  };
   principal: {
     vpcCidrBlock: string[];
     transitGatewayId: string;
-  },
+  };
+  attachement?: cdk.CfnResource;
 }
 interface IRouteTable {
   createResources(props: Props): void;
 }
 export class VpcRouteTable extends Resource implements IRouteTable {
-
   public createResources(props: Props): void {
     this.createPublicTable(this.scope, props);
     this.createProtectedTable(this.scope, props);
@@ -59,19 +59,25 @@ export class VpcRouteTable extends Resource implements IRouteTable {
           routeTableId: routetable.ref,
         });
         for (let j = 0; j < props.principal.vpcCidrBlock.length; j++) {
-          new CfnRoute(scope, `ProtectedRouteTgw${props.principal.vpcCidrBlock[j].replace(/[^0-9]/g, '')}-${i}`, {
+          const route = new CfnRoute(scope, `ProtectedRouteTgw${props.principal.vpcCidrBlock[j].replace(/[^0-9]/g, '')}-${i}`, {
             destinationCidrBlock: props.principal.vpcCidrBlock[j],
             transitGatewayId: props.transitGatewayId,
             routeTableId: routetable.ref,
           });
+          if (props.attachement !== undefined) {
+            route.addDependsOn(props.attachement);
+          }
         }
       } else if (0 < props.principal.transitGatewayId.length) {
         // For child accounts
-        new CfnRoute(scope, `ProtectedRoute${azName[i]}`, {
+        const route = new CfnRoute(scope, `ProtectedRoute${azName[i]}`, {
           destinationCidrBlock: '0.0.0.0/0',
           transitGatewayId: props.principal.transitGatewayId,
           routeTableId: routetable.ref,
         });
+        if (props.attachement !== undefined) {
+          route.addDependsOn(props.attachement);
+        }
       }
       new CfnSubnetRouteTableAssociation(scope, `ProtectedAssociation${azName[i]}`, {
         routeTableId: routetable.ref,

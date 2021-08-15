@@ -7,12 +7,11 @@ interface Props {
   cidrBlock: string;
 }
 interface IVpc {
-  readonly VpcId: string;
+  readonly vpcId: string;
   createResources(props: Props): void;
 }
 export class Vpc extends Resource implements IVpc {
-  public VpcId!: string;
-
+  public vpcId!: string;
   public createResources(props: Props): void {
     const vpc = new CfnVPC(this.scope, 'Vpc', {
       cidrBlock: props.cidrBlock,
@@ -24,6 +23,6 @@ export class Vpc extends Resource implements IVpc {
       value: vpc.ref,
       exportName: `${props.projectName}:VpcId`,
     });
-    this.VpcId = vpc.ref;
+    this.vpcId = vpc.ref;
   }
 }

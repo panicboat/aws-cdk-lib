@@ -14,35 +14,26 @@ interface Props {
     accountIds: string[];
     transitGatewayId: string;
   }
-  isFoundation: boolean;
 }
 interface IGateway {
   readonly internetGatewayId: string;
   readonly natGatewayIds: string[];
   readonly transitGatewayId: string;
-  readonly tgwAttachmentId: string;
   createResources(props: Props): void;
 }
 export class Gateway extends Resource implements IGateway {
   public internetGatewayId: string = '';
   public natGatewayIds: string[] = [];
   public transitGatewayId: string = '';
-  public tgwAttachmentId: string = '';
-
   public createResources(props: Props): void {
     this.createInternetGateway(this.scope, props);
-    if (props.isFoundation) {
+    if (props.principal.transitGatewayId.length === 0) {
       // For master account
       this.createNatGateway(this.scope, props);
     }
-    if (props.isFoundation && 0 < props.principal.accountIds.length) {
+    if (0 < props.principal.accountIds.length) {
       // For master account
       this.createTransitGateway(this.scope, this.stack, props);
-      this.createTransitGatewayAttachment(this.scope, props, this.transitGatewayId);
-    }
-    if (!props.isFoundation && 0 < props.principal.transitGatewayId.length) {
-      // For child accounts
-      this.createTransitGatewayAttachment(this.scope, props, props.principal.transitGatewayId);
     }
   }
 
@@ -88,18 +79,5 @@ export class Gateway extends Resource implements IGateway {
       exportName: `${props.projectName}:TransitGateway`,
     });
     this.transitGatewayId = cdk.Fn.getAtt(tgw.logicalId, 'Id').toString();
-  }
-
-  private createTransitGatewayAttachment(scope: cdk.Construct, props: Props, transitGatewayId: string): void {
-    const attachment = new CfnTransitGatewayAttachment(scope, `TransitGatewayAttachment`, {
-      transitGatewayId: transitGatewayId,
-      vpcId: props.vpcId,
-      subnetIds: props.subnets.protected,
-    });
-    new cdk.CfnOutput(scope, `ExportTransitGatewayAttachment`, {
-      value: attachment.ref,
-      exportName: `${props.projectName}:TransitGatewayAttachment`,
-    });
-    this.tgwAttachmentId = attachment.ref;
   }
 }

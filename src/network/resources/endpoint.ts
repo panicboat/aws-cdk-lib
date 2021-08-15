@@ -14,7 +14,6 @@ interface IEndpoint {
   createResources(props: Props): void;
 }
 export class Endpoint extends Resource implements IEndpoint {
-
   public createResources(props: Props): void {
     const sg = new CfnSecurityGroup(this.scope, 'SGforVPCEndpoint', {
       groupDescription: 'security group for vpc endpoints.',
