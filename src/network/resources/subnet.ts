@@ -37,7 +37,7 @@ export class Subnet extends Resource implements ISubnet {
       let subnet = this.ip.subnet(firstAddress, subnetmask);
 
       let resource = new CfnSubnet(scope, id, {
-        cidrBlock: subnet.firstAddress + '/' + subnet.subnetMaskLength.toString(),
+        cidrBlock: subnet.networkAddress + '/' + subnet.subnetMaskLength.toString(),
         vpcId: props.vpcId,
         availabilityZone: cdk.Fn.select(i, availabilityZones),
         tags: [{ key: 'Name', value: id }],

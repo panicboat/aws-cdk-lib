@@ -36,6 +36,17 @@ export class VpcRouteTable extends Resource implements IRouteTable {
       gatewayId: props.internetGatewayId,
       routeTableId: routetable.ref,
     });
+    for (let j = 0; j < props.principal.vpcCidrBlock.length; j++) {
+      // For master account
+      const route = new CfnRoute(scope, `PublicRouteTableTgw${props.principal.vpcCidrBlock[j]}`, {
+        destinationCidrBlock: props.principal.vpcCidrBlock[j],
+        transitGatewayId: props.transitGatewayId,
+        routeTableId: routetable.ref,
+      });
+      if (props.attachement !== undefined) {
+        route.addDependsOn(props.attachement);
+      }
+    }
     let azName: string[] = this.getAvailabilityZoneNames();
     for (let i = 0; i < azName.length; i++) {
       new CfnSubnetRouteTableAssociation(scope, `PublicAssociation${azName[i]}`, {
@@ -58,16 +69,6 @@ export class VpcRouteTable extends Resource implements IRouteTable {
           natGatewayId: props.natGatewayIds[i],
           routeTableId: routetable.ref,
         });
-        for (let j = 0; j < props.principal.vpcCidrBlock.length; j++) {
-          const route = new CfnRoute(scope, `ProtectedRouteTgw${props.principal.vpcCidrBlock[j].replace(/[^0-9]/g, '')}-${i}`, {
-            destinationCidrBlock: props.principal.vpcCidrBlock[j],
-            transitGatewayId: props.transitGatewayId,
-            routeTableId: routetable.ref,
-          });
-          if (props.attachement !== undefined) {
-            route.addDependsOn(props.attachement);
-          }
-        }
       } else if (0 < props.principal.transitGatewayId.length) {
         // For child accounts
         const route = new CfnRoute(scope, `ProtectedRoute${azName[i]}`, {
