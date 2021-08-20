@@ -15,7 +15,7 @@ interface IEndpoint {
 }
 export class Endpoint extends Resource implements IEndpoint {
   public createResources(props: Props): void {
-    let endpoints = [
+    let endpoints: { serviceName: string; privateDnsEnabled: boolean }[] = [
       { serviceName: 'ssm', privateDnsEnabled: true },
       { serviceName: 'ssmmessages', privateDnsEnabled: true },
       { serviceName: 'ec2messages', privateDnsEnabled: true },
