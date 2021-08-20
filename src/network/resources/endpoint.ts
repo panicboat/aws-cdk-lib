@@ -1,30 +1,20 @@
 import * as cdk from '@aws-cdk/core';
-import { CfnSecurityGroup, CfnSecurityGroupIngress, CfnVPCEndpoint } from '@aws-cdk/aws-ec2';
+import { CfnVPCEndpoint } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
 interface Props {
   projectName: string;
   vpcId: string;
-  cidrBlock: string;
   subnets: {
     protected: string[],
-  }
+  },
+  securityGroupIds: string[];
 }
 interface IEndpoint {
   createResources(props: Props): void;
 }
 export class Endpoint extends Resource implements IEndpoint {
   public createResources(props: Props): void {
-    const sg = new CfnSecurityGroup(this.scope, 'SGforVPCEndpoint', {
-      groupDescription: 'security group for vpc endpoints.',
-      groupName: 'SGforVPCEndpoint',
-      vpcId: props.vpcId,
-    });
-    new CfnSecurityGroupIngress(this.scope, 'SGIngressforVPCEndpoint', {
-      ipProtocol: '-1',
-      groupId: sg.ref,
-      cidrIp: props.cidrBlock,
-    });
     let endpoints = [
       { serviceName: 'ssm', privateDnsEnabled: true },
       { serviceName: 'ssmmessages', privateDnsEnabled: true },
@@ -36,7 +26,7 @@ export class Endpoint extends Resource implements IEndpoint {
         serviceName: `com.amazonaws.${this.stack.region}.${endpoints[i].serviceName}`,
         vpcId: props.vpcId,
         privateDnsEnabled: endpoints[i].privateDnsEnabled,
-        securityGroupIds: [ sg.ref ],
+        securityGroupIds: props.securityGroupIds,
         subnetIds: props.subnets.protected,
         vpcEndpointType: 'Interface',
       });

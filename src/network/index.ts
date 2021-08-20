@@ -5,6 +5,7 @@ import { Gateway } from './resources/gateway';
 import { Iam } from './resources/iam';
 import { Endpoint } from './resources/endpoint';
 import { RouteTable } from './resources/routetable';
+import { SecurityGroup } from './resources/securitygroup';
 
 interface Props {
   projectName: string;
@@ -50,8 +51,11 @@ export class NetworkResources extends cdk.Construct implements INetworkResources
       principal: { transitGatewayId: transitGatewayId, tgwAttachmentIds: tgwAttachmentIds, vpcCidrBlock: vpcCidrBlock },
     });
 
+    const sg = new SecurityGroup(this);
+    sg.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
+
     const endpoint = new Endpoint(this);
-    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock, subnets: { protected: subnet.protected } });
+    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { protected: subnet.protected }, securityGroupIds: [ sg.default ] });
   }
 
   private getValue(inputValue: any, defaultValue: any): any {
