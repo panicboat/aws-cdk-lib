@@ -17,9 +17,9 @@ interface Props {
     tgwAttachmentIds?: string[];              // For master accounts
   }
 }
-interface INetworkResources {
+interface IVpcResources {
 }
-export class NetworkResources extends cdk.Construct implements INetworkResources {
+export class VpcResources extends cdk.Construct implements IVpcResources {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 

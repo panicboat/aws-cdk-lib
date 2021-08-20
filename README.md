@@ -7,7 +7,7 @@
 #### Step1. Deploy with the master account.
 
 ```typescript
-    new NetworkResources(this, id, {
+    new VpcResources(this, id, {
       projectName: process.env.ProjectName!,
       cidrBlock: process.env.VpcCidrBlock!,
       principal: {
@@ -23,7 +23,7 @@
 notice : Need to approve the share of the transitgateway before execution.
 
 ```typescript
-    new NetworkResources(this, id, {
+    new VpcResources(this, id, {
       projectName: process.env.ProjectName!,
       cidrBlock: process.env.VpcCidrBlock!,
       principal: {
@@ -35,7 +35,7 @@ notice : Need to approve the share of the transitgateway before execution.
 #### Step3. Deploy with the master account.
 
 ```typescript
-    new NetworkResources(this, id, {
+    new VpcResources(this, id, {
       projectName: process.env.ProjectName!,
       cidrBlock: process.env.VpcCidrBlock!,
       principal: {
