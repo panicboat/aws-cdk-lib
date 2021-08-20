@@ -55,7 +55,7 @@ export class NetworkResources extends cdk.Construct implements INetworkResources
     sg.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
 
     const endpoint = new Endpoint(this);
-    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { protected: subnet.protected }, securityGroupIds: [ sg.default ] });
+    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { protected: subnet.protected }, securityGroupIds: [ sg.main ] });
   }
 
   private getValue(inputValue: any, defaultValue: any): any {

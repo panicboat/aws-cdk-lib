@@ -8,11 +8,11 @@ interface Props {
   cidrBlock: string;
 }
 interface ISecurityGroup {
-  readonly default: string;
+  readonly main: string;
   createResources(props: Props): void;
 }
 export class SecurityGroup extends Resource implements ISecurityGroup {
-  public default!: string;
+  public main!: string;
   public createResources(props: Props): void {
     const sg = new CfnSecurityGroup(this.scope, 'SecurityGroup', {
       groupDescription: 'security group for organizations.',
@@ -24,6 +24,6 @@ export class SecurityGroup extends Resource implements ISecurityGroup {
       groupId: sg.ref,
       cidrIp: props.cidrBlock,
     });
-    this.default = sg.ref;
+    this.main = sg.ref;
   }
 }
