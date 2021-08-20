@@ -67,8 +67,8 @@ export class Gateway extends Resource implements IGateway {
       defaultRouteTableAssociation: 'disable',
       defaultRouteTablePropagation: 'disable',
     });
-    new CfnResourceShare(scope, 'SharedTransitGateway', {
-      name: 'ResourceShare',
+    new CfnResourceShare(scope, 'ResourceShare', {
+      name: 'Provisioning',
       principals: props.principal.accountIds,
       resourceArns: [
         `arn:aws:ec2:${stack.region}:${stack.account}:transit-gateway/${cdk.Fn.getAtt(tgw.logicalId, 'Id').toString()}`,
