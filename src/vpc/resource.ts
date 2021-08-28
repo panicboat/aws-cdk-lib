@@ -4,21 +4,17 @@ interface Props {
   projectName: string;
 }
 export abstract class Resource {
-    protected scope: cdk.Construct;
-    protected stack: cdk.Stack;
+  protected scope: cdk.Construct;
+  protected stack: cdk.Stack;
 
-    constructor(scope: cdk.Construct) {
-      this.scope = scope;
-      this.stack = cdk.Stack.of(this.scope);
-    }
+  constructor(scope: cdk.Construct) {
+    this.scope = scope;
+    this.stack = cdk.Stack.of(this.scope);
+  }
 
-    public abstract createResources(props: Props): void;
+  public abstract createResources(props: Props): void;
 
-    protected getAvailabilityZoneNames(): string[] {
-      return ['A', 'C', 'D'];
-    }
-
-    protected getSubnetMask(): string[] {
-      return ['255.255.248.000', '255.255.224.000', '255.255.248.000'];
-    }
+  protected getAvailabilityZoneNames(): string[] {
+    return ['A', 'C', 'D'];
+  }
 }

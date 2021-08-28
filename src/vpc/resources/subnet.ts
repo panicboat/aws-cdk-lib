@@ -19,42 +19,44 @@ export class Subnet extends Resource implements ISubnet {
   public protected!: string[];
   public private!: string[];
   private ip = require('ip');
-  private nextAddress!: string;
 
   public createResources(props: Props): void {
-    this.nextAddress = props.cidrBlock.split('/')[0];
-    this.protected = this.createSubnets(this.scope, props, this.nextAddress, this.getSubnetMask()[1], 'ProtectedSubnet');
-    this.public = this.createSubnets(this.scope, props, this.nextAddress, this.getSubnetMask()[0], 'PublicSubnet');
-    this.private = this.createSubnets(this.scope, props, this.nextAddress, this.getSubnetMask()[2], 'PrivateSubnet');
+    let resources: { [key: string]: string[]; } = {};
+    let firstAddress = props.cidrBlock.split('/')[0];
+    for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {
+      for (let j = 0; j < this.getSubnetType().length; j++) {
+        let id: string = `${this.getSubnetType()[j]}${this.getAvailabilityZoneNames()[i]}`;
+        let subnet = this.ip.subnet(firstAddress, this.getSubnetMask()[j]);
+        const resource = new CfnSubnet(this.scope, id, {
+          cidrBlock: subnet.networkAddress + '/' + subnet.subnetMaskLength.toString(),
+          vpcId: props.vpcId,
+          availabilityZone: cdk.Fn.select(i, cdk.Fn.getAzs()),
+          tags: [{ key: 'Name', value: id }],
+        });
+        if (resources[this.getSubnetType()[j]] === undefined) {
+          resources[this.getSubnetType()[j]] = [];
+        }
+        resources[this.getSubnetType()[j]].push(resource.ref);
+        firstAddress = this.ip.fromLong(this.ip.toLong(subnet.broadcastAddress) + 1);
+      }
+    }
+    this.getSubnetType().forEach(subnetType => {
+      new cdk.CfnOutput(this.scope, `Export${subnetType}`, {
+        value: resources[subnetType].toString(),
+        exportName: `${props.projectName}:${subnetType}`,
+      });
+    });
+
+    this.public = resources['Public'];
+    this.protected = resources['Protected'];
+    this.private = resources['Private'];
   }
 
-  private createSubnets(scope: cdk.Construct, props: Props, firstAddress: string, subnetmask: string, subnetType: string): string[] {
-    let availabilityZones = cdk.Fn.getAzs();
-    let azName: string[] = this.getAvailabilityZoneNames();
-    let resources: string[] = [];
-    for (let i = 0; i < azName.length; i++) {
-      let id: string = `${subnetType}${azName[i]}`;
-      let subnet = this.ip.subnet(firstAddress, subnetmask);
+  private getSubnetType(): string[] {
+    return ['Protected', 'Public', 'Private'];
+  }
 
-      let resource = new CfnSubnet(scope, id, {
-        cidrBlock: subnet.networkAddress + '/' + subnet.subnetMaskLength.toString(),
-        vpcId: props.vpcId,
-        availabilityZone: cdk.Fn.select(i, availabilityZones),
-        tags: [{ key: 'Name', value: id }],
-      });
-      new cdk.CfnOutput(scope, `Export${id}`, {
-        value: resource.ref,
-        exportName: `${props.projectName}:${id}`,
-      });
-
-      resources.push(resource.ref);
-      firstAddress = this.ip.fromLong(this.ip.toLong(subnet.broadcastAddress) + 1);
-      this.nextAddress = firstAddress;
-    }
-    new cdk.CfnOutput(scope, `Export${subnetType}`, {
-      value: resources.toString(),
-      exportName: `${props.projectName}:${subnetType}`,
-    });
-    return resources;
+  private getSubnetMask(): string[] {
+    return ['255.255.224.000', '255.255.240.000', '255.255.240.000'];
   }
 }

@@ -48,6 +48,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
       internetGatewayId: gateway.internetGatewayId,
       natGatewayIds: gateway.natGatewayIds,
       transitGatewayId: gateway.transitGatewayId,
+      attachment: gateway.attachment,
       principal: { transitGatewayId: transitGatewayId, tgwAttachmentIds: tgwAttachmentIds, vpcCidrBlock: vpcCidrBlock },
     });
 

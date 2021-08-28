@@ -19,7 +19,7 @@ export class Endpoint extends Resource implements IEndpoint {
       { serviceName: 'ssm', privateDnsEnabled: true },
       { serviceName: 'ssmmessages', privateDnsEnabled: true },
       { serviceName: 'ec2messages', privateDnsEnabled: true },
-      { serviceName: 's3', privateDnsEnabled: false },
+      // { serviceName: 's3', privateDnsEnabled: false },
     ];
     for (let i = 0; i < endpoints.length; i++) {
       new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoints[i].serviceName}`, {

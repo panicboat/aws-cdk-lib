@@ -47,9 +47,8 @@ export class VpcRouteTable extends Resource implements IRouteTable {
         route.addDependsOn(props.attachement);
       }
     }
-    let azName: string[] = this.getAvailabilityZoneNames();
-    for (let i = 0; i < azName.length; i++) {
-      new CfnSubnetRouteTableAssociation(scope, `PublicAssociation${azName[i]}`, {
+    for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {
+      new CfnSubnetRouteTableAssociation(scope, `PublicAssociation${this.getAvailabilityZoneNames()[i]}`, {
         routeTableId: routetable.ref,
         subnetId: props.subnets.public[i],
       });
@@ -57,21 +56,20 @@ export class VpcRouteTable extends Resource implements IRouteTable {
   }
 
   private createProtectedTable(scope: cdk.Construct, props: Props): void {
-    let azName: string[] = this.getAvailabilityZoneNames();
-    for (let i = 0; i < azName.length; i++) {
-      const routetable = new CfnRouteTable(scope, `ProtectedRouteTable${azName[i]}`, {
+    for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {
+      const routetable = new CfnRouteTable(scope, `ProtectedRouteTable${this.getAvailabilityZoneNames()[i]}`, {
         vpcId: props.vpcId,
       });
       if (0 < props.natGatewayIds.length) {
         // For master account
-        new CfnRoute(scope, `ProtectedRouteNgw${azName[i]}`, {
+        new CfnRoute(scope, `ProtectedRouteNgw${this.getAvailabilityZoneNames()[i]}`, {
           destinationCidrBlock: '0.0.0.0/0',
           natGatewayId: props.natGatewayIds[i],
           routeTableId: routetable.ref,
         });
       } else if (0 < props.principal.transitGatewayId.length) {
         // For child accounts
-        const route = new CfnRoute(scope, `ProtectedRoute${azName[i]}`, {
+        const route = new CfnRoute(scope, `ProtectedRoute${this.getAvailabilityZoneNames()[i]}`, {
           destinationCidrBlock: '0.0.0.0/0',
           transitGatewayId: props.principal.transitGatewayId,
           routeTableId: routetable.ref,
@@ -80,7 +78,7 @@ export class VpcRouteTable extends Resource implements IRouteTable {
           route.addDependsOn(props.attachement);
         }
       }
-      new CfnSubnetRouteTableAssociation(scope, `ProtectedAssociation${azName[i]}`, {
+      new CfnSubnetRouteTableAssociation(scope, `ProtectedAssociation${this.getAvailabilityZoneNames()[i]}`, {
         routeTableId: routetable.ref,
         subnetId: props.subnets.protected[i],
       });
