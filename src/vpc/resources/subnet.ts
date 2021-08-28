@@ -24,26 +24,26 @@ export class Subnet extends Resource implements ISubnet {
     let resources: { [key: string]: string[]; } = {};
     let firstAddress = props.cidrBlock.split('/')[0];
     for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {
-      for (let j = 0; j < this.getSubnetType().length; j++) {
-        let id: string = `${this.getSubnetType()[j]}${this.getAvailabilityZoneNames()[i]}`;
-        let subnet = this.ip.subnet(firstAddress, this.getSubnetMask()[j]);
+      this.getSubnet().forEach((subnetInfo: { label: string, mask: string }) => {
+        let id: string = `${subnetInfo.label}${this.getAvailabilityZoneNames()[i]}`;
+        let subnet = this.ip.subnet(firstAddress, subnetInfo.mask);
         const resource = new CfnSubnet(this.scope, id, {
           cidrBlock: subnet.networkAddress + '/' + subnet.subnetMaskLength.toString(),
           vpcId: props.vpcId,
           availabilityZone: cdk.Fn.select(i, cdk.Fn.getAzs()),
           tags: [{ key: 'Name', value: id }],
         });
-        if (resources[this.getSubnetType()[j]] === undefined) {
-          resources[this.getSubnetType()[j]] = [];
+        if (resources[subnetInfo.label] === undefined) {
+          resources[subnetInfo.label] = [];
         }
-        resources[this.getSubnetType()[j]].push(resource.ref);
+        resources[subnetInfo.label].push(resource.ref);
         firstAddress = this.ip.fromLong(this.ip.toLong(subnet.broadcastAddress) + 1);
-      }
+      });
     }
-    this.getSubnetType().forEach(subnetType => {
-      new cdk.CfnOutput(this.scope, `Export${subnetType}`, {
-        value: resources[subnetType].toString(),
-        exportName: `${props.projectName}:${subnetType}`,
+    this.getSubnet().forEach((subnetInfo: { label: string, mask: string }) => {
+      new cdk.CfnOutput(this.scope, `Export${subnetInfo.label}`, {
+        value: resources[subnetInfo.label].toString(),
+        exportName: `${props.projectName}:${subnetInfo.label}`,
       });
     });
 
@@ -52,11 +52,11 @@ export class Subnet extends Resource implements ISubnet {
     this.private = resources['Private'];
   }
 
-  private getSubnetType(): string[] {
-    return ['Protected', 'Public', 'Private'];
-  }
-
-  private getSubnetMask(): string[] {
-    return ['255.255.224.000', '255.255.240.000', '255.255.240.000'];
+  private getSubnet(): { label: string, mask: string }[] {
+    return [
+      { label: 'Protected', mask: '255.255.224.000' },
+      { label: 'Public',    mask: '255.255.240.000' },
+      { label: 'Private',   mask: '255.255.240.000' },
+    ]
   }
 }
