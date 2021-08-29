@@ -11,7 +11,7 @@
       projectName: process.env.ProjectName!,
       cidrBlock: process.env.VpcCidrBlock!,
       principal: {
-        accountIds: [ process.env.AnotherAccountID! ], // aws account id
+        accountIds: [ process.env.AnotherAccountID! ],      // aws account id
         vpcCidrBlock: [ process.env.AnotherVpcCidrBlock! ], // vpc cidrblock
         tgwAttachmentIds: [],
       },
@@ -39,9 +39,9 @@ notice : Need to approve the share of the transitgateway before execution.
       projectName: process.env.ProjectName!,
       cidrBlock: process.env.VpcCidrBlock!,
       principal: {
-        accountIds: [ process.env.AnotherAccountID! ], // aws account id
-        vpcCidrBlock: [ process.env.AnotherVpcCidrBlock! ], // vpc cidrblock
-        tgwAttachmentIds: [ process.env.AnotherTGWAttachmentID! ], // transit gateway attachement id
+        accountIds: [ process.env.AnotherAccountID! ],              // aws account id
+        vpcCidrBlock: [ process.env.AnotherVpcCidrBlock! ],         // vpc cidrblock
+        tgwAttachmentIds: [ process.env.AnotherTGWAttachmentID! ],  // transit gateway attachement id
       },
     });
 ```
@@ -53,25 +53,18 @@ notice : Need to approve the share of the transitgateway before execution.
     const resource = new MeshResources(scope, id, {
       projectName: props.projectName,
       mesh: props.mesh,
-      vRouterListeners: [
-        appmesh.VirtualRouterListener.http(9080)
-      ],
+      vRouterListeners: [appmesh.VirtualRouterListener.http(9080)],             // VirtualRouteListener
       nodes: [
         {
-          name: 'node',
-          service: props.namespace.createService('Service', { name: 'node' }),
-          vNodeListeners: [
-            appmesh.VirtualNodeListener.http({ port: 9080 })
-          ],
+          name: 'app1',                                                         // VirtualNodeName
+          service: props.namespace.createService('Service', { name: 'app1' }),  // HostName
+          vNodeListeners: [appmesh.VirtualNodeListener.http({ port: 9080 })],   // VirtualNodeListener
           weight: 1
         }
       ]
     });
     resource.vRouter.addRoute('Route', {
-      routeSpec: appmesh.RouteSpec.http({
-        weightedTargets: resource.weightedTargets,
-        match: { path: appmesh.HttpRoutePathMatch.startsWith('/') }
-      })
+      routeSpec: appmesh.RouteSpec.http({ weightedTargets: resource.weightedTargets, match: { path: appmesh.HttpRoutePathMatch.startsWith('/') } }) // RouteSpec
     });
   }
 ```

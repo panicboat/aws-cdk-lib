@@ -14,7 +14,7 @@ interface IVirtualRouter {
 export class VirtualRouter extends Resource implements IVirtualRouter {
   public router!: appmesh.IVirtualRouter;
   public createResources(props: Props): void {
-    const router = props.mesh.addVirtualRouter(`${props.projectName}VirtualRouter`, {
+    const router = props.mesh.addVirtualRouter('VirtualRouter', {
       listeners: props.vRouterListeners,
       virtualRouterName: props.projectName
     });

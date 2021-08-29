@@ -14,7 +14,7 @@ interface IVirtualService {
 export class VirtualService extends Resource implements IVirtualService {
   public service!: IService;
   public createResources(props: Props): void {
-    new appmesh.VirtualService(this.scope, `${props.projectName}VirtualService`, {
+    new appmesh.VirtualService(this.scope, 'VirtualService', {
       virtualServiceProvider: appmesh.VirtualServiceProvider.virtualRouter(props.router),
       virtualServiceName: props.projectName
     });
