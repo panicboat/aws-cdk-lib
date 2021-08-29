@@ -7,6 +7,7 @@ import { VirtualNode } from './resources/vnode';
 
 interface Props {
   projectName: string;
+  serviceName: string;
   mesh: appmesh.IMesh;
   vRouterListeners: appmesh.VirtualRouterListener[];
   nodes: { name: string, service: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
@@ -25,7 +26,7 @@ export class MeshResources extends cdk.Construct implements IMeshResources {
     router.createResources({ projectName: props.projectName, mesh: props.mesh, vRouterListeners: props.vRouterListeners });
 
     const service = new VirtualService(this);
-    service.createResources({ projectName: props.projectName, router: router.router });
+    service.createResources({ projectName: props.projectName, serviceName: props.serviceName, router: router.router });
 
     const node = new VirtualNode(this);
     node.createResources({ projectName: props.projectName, mesh: props.mesh, nodes: props.nodes });

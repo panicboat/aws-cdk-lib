@@ -16,7 +16,7 @@ export class VirtualNode extends Resource implements IVirtualNode {
   public weightedTargets: appmesh.WeightedTarget[] = [];
   public createResources(props: Props): void {
     props.nodes.forEach(data => {
-      const node = props.mesh.addVirtualNode(`VirtualNode${data.name}`, {
+      const node = props.mesh.addVirtualNode(`${props.projectName}VirtualNode${data.name}`, {
         virtualNodeName: data.name,
         serviceDiscovery: appmesh.ServiceDiscovery.cloudMap(data.service),
         listeners: data.vNodeListeners,

@@ -5,6 +5,7 @@ import { Resource } from '../resource';
 
 interface Props {
   projectName: string;
+  serviceName: string;
   router: appmesh.IVirtualRouter;
 }
 interface IVirtualService {
@@ -14,9 +15,9 @@ interface IVirtualService {
 export class VirtualService extends Resource implements IVirtualService {
   public service!: IService;
   public createResources(props: Props): void {
-    new appmesh.VirtualService(this.scope, 'VirtualService', {
+    new appmesh.VirtualService(this.scope, `${props.projectName}VirtualService`, {
       virtualServiceProvider: appmesh.VirtualServiceProvider.virtualRouter(props.router),
-      virtualServiceName: props.projectName
+      virtualServiceName: props.serviceName,
     });
   }
 }
