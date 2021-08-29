@@ -33,9 +33,5 @@ export class Iam extends Resource implements IIam {
       instanceProfileName: 'AmazonSSMManagedInstanceProfile',
       roles: [role.ref]
     });
-    new cdk.CfnOutput(scope, `ExportSSMManagedInstanceRole`, {
-      value: cdk.Fn.getAtt(role.logicalId, 'Arn').toString(),
-      exportName: `${props.projectName}:SSMManagedInstanceRole`,
-    });
   }
 }
