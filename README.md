@@ -45,3 +45,33 @@ notice : Need to approve the share of the transitgateway before execution.
       },
     });
 ```
+
+### Mesh Foundation
+
+```typescript
+  private createMeshResources(scope: cdk.Construct, id: string, props: { projectName: string, mesh: appmesh.IMesh, namespace: PrivateDnsNamespace }) {
+    const resource = new MeshResources(scope, id, {
+      projectName: props.projectName,
+      mesh: props.mesh,
+      vRouterListeners: [
+        appmesh.VirtualRouterListener.http(9080)
+      ],
+      nodes: [
+        {
+          name: 'node',
+          service: props.namespace.createService('Service', { name: 'node' }),
+          vNodeListeners: [
+            appmesh.VirtualNodeListener.http({ port: 9080 })
+          ],
+          weight: 1
+        }
+      ]
+    });
+    resource.vRouter.addRoute('Route', {
+      routeSpec: appmesh.RouteSpec.http({
+        weightedTargets: resource.weightedTargets,
+        match: { path: appmesh.HttpRoutePathMatch.startsWith('/') }
+      })
+    });
+  }
+```
