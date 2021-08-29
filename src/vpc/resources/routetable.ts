@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { Resource } from '../resource';
-import { VpcRouteTable } from './route/vpc';
-import { TgwRouteTable } from './route/tgw';
+import { VpcRouteTable } from './routetable/vpc';
+import { TgwRouteTable } from './routetable/tgw';
 
 interface Props {
   projectName: string;
