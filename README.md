@@ -49,9 +49,10 @@ notice : Need to approve the share of the transitgateway before execution.
 ### Mesh Foundation
 
 ```typescript
-  private createMeshResources(scope: cdk.Construct, id: string, props: { projectName: string, mesh: appmesh.IMesh, namespace: PrivateDnsNamespace }) {
+  private createMeshResources(scope: cdk.Construct, id: string, props: { projectName: string, serviceName: string, mesh: appmesh.IMesh, namespace: PrivateDnsNamespace }) {
     const resource = new MeshResources(scope, id, {
       projectName: props.projectName,
+      serviceName: props.serviceName,
       mesh: props.mesh,
       vRouterListeners: [appmesh.VirtualRouterListener.http(9080)],             // VirtualRouteListener
       nodes: [
