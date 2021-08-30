@@ -58,13 +58,14 @@ notice : Need to approve the share of the transitgateway before execution.
       nodes: [
         {
           name: 'app1',                                                         // VirtualNodeName
-          service: props.namespace.createService('Service', { name: 'app1' }),  // HostName
+          service: props.namespace.createService('Service', { name: 'app1' }),  // ServiceDiscovery::Service
           vNodeListeners: [appmesh.VirtualNodeListener.http({ port: 9080 })],   // VirtualNodeListener
           weight: 1
         }
       ]
     });
     resource.vRouter.addRoute('Route', {
+      routeName: props.projectName,
       routeSpec: appmesh.RouteSpec.http({ weightedTargets: resource.weightedTargets, match: { path: appmesh.HttpRoutePathMatch.startsWith('/') } }) // RouteSpec
     });
   }
