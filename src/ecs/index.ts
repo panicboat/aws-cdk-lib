@@ -1,11 +1,11 @@
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
+import { INamespace } from '@aws-cdk/aws-servicediscovery';
+import { LogGroup } from '@aws-cdk/aws-logs';
 import { Repository } from './resources/repository';
 import { Iam } from './resources/iam';
-import { Logs } from './resources/logs';
 import { TaskDefinition } from './resources/taskdefinition';
 import { Service } from './resources/service';
-import { INamespace } from '@aws-cdk/aws-servicediscovery';
 
 interface Props {
   projectName: string;
@@ -14,6 +14,7 @@ interface Props {
   appPorts: number[];
   virtualNodeName: string;
   containers: ecs.ContainerDefinitionOptions[];
+  logGroup: LogGroup;
   cluster: ecs.ICluster;
   namespace: INamespace;
   desiredCount: number;
@@ -27,16 +28,13 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
     const iam = new Iam(this);
     iam.createResources({ projectName: props.projectName });
 
-    const logs = new Logs(this);
-    logs.createResources({ projectName: props.projectName });
-
     const repository = new Repository(this);
     repository.createResources({ projectName: props.projectName });
 
     const taskdef = new TaskDefinition(this);
     taskdef.createResources({
       projectName: props.projectName, cpu: props.cpu, memoryLimitMiB: props.memoryLimitMiB, appPorts: props.appPorts, virtualNodeName: props.virtualNodeName,
-      executionRole: iam.executionRole, taskRole: iam.taskRole, logGroup: logs.logGroup, containers: props.containers,
+      executionRole: iam.executionRole, taskRole: iam.taskRole, logGroup: props.logGroup, containers: props.containers,
     });
 
     const service = new Service(this);
