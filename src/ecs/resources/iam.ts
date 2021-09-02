@@ -32,8 +32,6 @@ export class Iam extends Resource implements IIam {
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess'),
       ].concat(props.ecsTaskExecutionRole.managedPolicies),
     });
     props.ecsTaskExecutionRole.inlinePolicies.forEach(inlinePolicy => {
@@ -50,7 +48,6 @@ export class Iam extends Resource implements IIam {
       ),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2ContainerServiceEventsRole'),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchFullAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXRayDaemonWriteAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('AWSAppMeshEnvoyAccess'),
       ].concat(props.ecsTaskRole.managedPolicies),
