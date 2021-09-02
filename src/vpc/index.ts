@@ -15,7 +15,8 @@ interface Props {
     vpcCidrBlock?: string[];                  // For master accounts
     transitGatewayId?: string;                // For child accounts
     tgwAttachmentIds?: string[];              // For master accounts
-  }
+  };
+  endpoints?: { serviceName: string; privateDnsEnabled: boolean }[];
 }
 interface IVpcResources {
 }
@@ -28,6 +29,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     let vpcCidrBlock = this.getValue(principal.vpcCidrBlock, []);
     let tgwAttachmentIds = this.getValue(principal.tgwAttachmentIds, []);
     let transitGatewayId = this.getValue(principal.transitGatewayId, '');
+    let endpoints = this.getValue(props.endpoints, []);
 
     const iam = new Iam(this);
     iam.createResources({ projectName: props.projectName });
@@ -56,7 +58,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     sg.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
 
     const endpoint = new Endpoint(this);
-    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { protected: subnet.protected }, securityGroupIds: [ sg.main ] });
+    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { protected: subnet.protected }, securityGroupIds: [ sg.main ], endpoints: endpoints });
   }
 
   private getValue(inputValue: any, defaultValue: any): any {

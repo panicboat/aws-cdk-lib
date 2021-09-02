@@ -1,4 +1,3 @@
-import * as cdk from '@aws-cdk/core';
 import { CfnVPCEndpoint } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
@@ -9,6 +8,7 @@ interface Props {
     protected: string[],
   },
   securityGroupIds: string[];
+  endpoints: { serviceName: string; privateDnsEnabled: boolean }[];
 }
 interface IEndpoint {
   createResources(props: Props): void;
@@ -20,16 +20,18 @@ export class Endpoint extends Resource implements IEndpoint {
       { serviceName: 'ssmmessages', privateDnsEnabled: true },
       { serviceName: 'ec2messages', privateDnsEnabled: true },
       // { serviceName: 's3', privateDnsEnabled: false },
-    ];
-    for (let i = 0; i < endpoints.length; i++) {
-      new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoints[i].serviceName}`, {
-        serviceName: `com.amazonaws.${this.stack.region}.${endpoints[i].serviceName}`,
+      { serviceName: 'ecr.dkr', privateDnsEnabled: false },
+      { serviceName: 'ecr.api', privateDnsEnabled: false },
+    ].concat(props.endpoints);
+    endpoints.forEach(endpoint => {
+      new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoint.serviceName}`, {
+        serviceName: `com.amazonaws.${this.stack.region}.${endpoint.serviceName}`,
         vpcId: props.vpcId,
-        privateDnsEnabled: endpoints[i].privateDnsEnabled,
+        privateDnsEnabled: endpoint.privateDnsEnabled,
         securityGroupIds: props.securityGroupIds,
         subnetIds: props.subnets.protected,
         vpcEndpointType: 'Interface',
       });
-    }
+    });
   }
 }

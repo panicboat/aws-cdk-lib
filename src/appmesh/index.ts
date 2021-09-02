@@ -10,7 +10,7 @@ interface Props {
   serviceName: string;
   mesh: appmesh.IMesh;
   vRouterListeners: appmesh.VirtualRouterListener[];
-  nodes: { name: string, service: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
+  nodes: { name: string, hostname: string, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
 }
 interface IMeshResources {
   readonly vRouter: appmesh.IVirtualRouter;

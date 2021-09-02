@@ -1,4 +1,3 @@
-import * as cdk from '@aws-cdk/core';
 import { CfnSecurityGroup, CfnSecurityGroupIngress } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 

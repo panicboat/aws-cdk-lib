@@ -23,9 +23,9 @@ export class TgwRouteTable extends Resource implements IRouteTable {
       if (props.attachement !== undefined) {
         this.tgwRouteTableAssociation('', props.attachement.ref, routetable.ref);
       }
-      for (let i = 0; i < props.principal.tgwAttachmentIds.length; i++) {
-        this.tgwRouteTableAssociation(props.principal.tgwAttachmentIds[i], props.principal.tgwAttachmentIds[i], routetable.ref);
-      }
+      props.principal.tgwAttachmentIds.forEach(tgwAttachmentId => {
+        this.tgwRouteTableAssociation(tgwAttachmentId, tgwAttachmentId, routetable.ref);
+      });
       if (props.attachement !== undefined) {
         new CfnTransitGatewayRoute(this.scope, 'TransitGatewayRoute', {
           destinationCidrBlock: '0.0.0.0/0',
