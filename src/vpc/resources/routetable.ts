@@ -12,7 +12,7 @@ interface Props {
   attachment?: cdk.CfnResource;
   subnets: {
     public: string[];
-    protected: string[];
+    private: string[];
   };
   principal: {
     vpcCidrBlock: string[];
@@ -28,7 +28,7 @@ export class RouteTable extends Resource implements IRouteTable {
     const vpcRouteTable = new VpcRouteTable(this.scope);
     vpcRouteTable.createResources({
       projectName: props.projectName, vpcId: props.vpcId, internetGatewayId: props.internetGatewayId, natGatewayIds: props.natGatewayIds, transitGatewayId: props.transitGatewayId,
-      subnets: { public: props.subnets.public, protected: props.subnets.protected },
+      subnets: { public: props.subnets.public, private: props.subnets.private },
       principal: { vpcCidrBlock: props.principal.vpcCidrBlock, transitGatewayId: props.principal.transitGatewayId },
       attachement: props.attachment
     });

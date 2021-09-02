@@ -41,12 +41,12 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     subnet.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
 
     const gateway = new Gateway(this);
-    gateway.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { public: subnet.public, protected: subnet.protected },
+    gateway.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { public: subnet.public, private: subnet.private },
       principal: { accountIds: accountIds, transitGatewayId: transitGatewayId, },
     });
 
     const routetable = new RouteTable(this);
-    routetable.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { public: subnet.public, protected: subnet.protected },
+    routetable.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { public: subnet.public, private: subnet.private },
       internetGatewayId: gateway.internetGatewayId,
       natGatewayIds: gateway.natGatewayIds,
       transitGatewayId: gateway.transitGatewayId,
@@ -58,7 +58,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     sg.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
 
     const endpoint = new Endpoint(this);
-    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { protected: subnet.protected }, securityGroupIds: [ sg.main ], endpoints: endpoints });
+    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { private: subnet.private }, securityGroupIds: [ sg.main ], endpoints: endpoints });
   }
 
   private getValue(inputValue: any, defaultValue: any): any {

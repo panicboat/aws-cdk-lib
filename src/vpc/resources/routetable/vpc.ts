@@ -10,7 +10,7 @@ interface Props {
   transitGatewayId: string;
   subnets: {
     public: string[],
-    protected: string[],
+    private: string[],
   };
   principal: {
     vpcCidrBlock: string[];
@@ -24,7 +24,7 @@ interface IRouteTable {
 export class VpcRouteTable extends Resource implements IRouteTable {
   public createResources(props: Props): void {
     this.createPublicTable(this.scope, props);
-    this.createProtectedTable(this.scope, props);
+    this.createPrivateTable(this.scope, props);
   }
 
   private createPublicTable(scope: cdk.Construct, props: Props): void {
@@ -55,7 +55,7 @@ export class VpcRouteTable extends Resource implements IRouteTable {
     }
   }
 
-  private createProtectedTable(scope: cdk.Construct, props: Props): void {
+  private createPrivateTable(scope: cdk.Construct, props: Props): void {
     for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {
       const routetable = new CfnRouteTable(scope, `ProtectedRouteTable${this.getAvailabilityZoneNames()[i]}`, {
         vpcId: props.vpcId,
@@ -80,7 +80,7 @@ export class VpcRouteTable extends Resource implements IRouteTable {
       }
       new CfnSubnetRouteTableAssociation(scope, `ProtectedAssociation${this.getAvailabilityZoneNames()[i]}`, {
         routeTableId: routetable.ref,
-        subnetId: props.subnets.protected[i],
+        subnetId: props.subnets.private[i],
       });
     }
   }

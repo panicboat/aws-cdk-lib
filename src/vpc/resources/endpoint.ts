@@ -5,7 +5,7 @@ interface Props {
   projectName: string;
   vpcId: string;
   subnets: {
-    protected: string[],
+    private: string[],
   },
   securityGroupIds: string[];
   endpoints: { serviceName: string; privateDnsEnabled: boolean }[];
@@ -29,7 +29,7 @@ export class Endpoint extends Resource implements IEndpoint {
         vpcId: props.vpcId,
         privateDnsEnabled: endpoint.privateDnsEnabled,
         securityGroupIds: props.securityGroupIds,
-        subnetIds: props.subnets.protected,
+        subnetIds: props.subnets.private,
         vpcEndpointType: 'Interface',
       });
     });

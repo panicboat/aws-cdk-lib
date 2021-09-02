@@ -8,7 +8,7 @@ interface Props {
   vpcId: string;
   subnets: {
     public: string[],
-    protected: string[],
+    private: string[],
   },
   principal: {
     accountIds: string[];
@@ -92,7 +92,7 @@ export class Gateway extends Resource implements IGateway {
     const attachment = new CfnTransitGatewayAttachment(scope, `TransitGatewayAttachment`, {
       transitGatewayId: transitGatewayId,
       vpcId: props.vpcId,
-      subnetIds: props.subnets.protected,
+      subnetIds: props.subnets.private,
     });
     new cdk.CfnOutput(scope, `ExportTransitGatewayAttachment`, {
       value: attachment.ref,

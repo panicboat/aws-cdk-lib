@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { CfnSubnet } from '@aws-cdk/aws-ec2';
+import { CfnSubnet, SubnetType } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
 
@@ -10,14 +10,14 @@ interface Props {
 }
 interface ISubnet {
   readonly public: string[];
-  readonly protected: string[];
   readonly private: string[];
+  readonly isolated: string[];
   createResources(props: Props): void;
 }
 export class Subnet extends Resource implements ISubnet {
   public public!: string[];
-  public protected!: string[];
   public private!: string[];
+  public isolated!: string[];
   private ip = require('ip');
 
   public createResources(props: Props): void {
@@ -31,7 +31,10 @@ export class Subnet extends Resource implements ISubnet {
           cidrBlock: subnet.networkAddress + '/' + subnet.subnetMaskLength.toString(),
           vpcId: props.vpcId,
           availabilityZone: cdk.Fn.select(i, cdk.Fn.getAzs()),
-          tags: [{ key: 'Name', value: id }],
+          tags: [
+            { key: 'Name', value: id },
+            { key: 'aws-cdk:subnet-type', value: subnetInfo.label }
+          ],
         });
         if (resources[subnetInfo.label] === undefined) {
           resources[subnetInfo.label] = [];
@@ -47,16 +50,16 @@ export class Subnet extends Resource implements ISubnet {
       });
     });
 
-    this.public = resources['Public'];
-    this.protected = resources['Protected'];
-    this.private = resources['Private'];
+    this.public = resources[SubnetType.PRIVATE];
+    this.private = resources[SubnetType.PRIVATE];
+    this.isolated = resources[SubnetType.ISOLATED];
   }
 
   private getSubnet(): { label: string, mask: string }[] {
     return [
-      { label: 'Protected', mask: '255.255.224.000' },
-      { label: 'Public',    mask: '255.255.240.000' },
-      { label: 'Private',   mask: '255.255.240.000' },
+      { label: SubnetType.PRIVATE,  mask: '255.255.224.000' },
+      { label: SubnetType.PUBLIC,   mask: '255.255.240.000' },
+      { label: SubnetType.ISOLATED, mask: '255.255.240.000' },
     ]
   }
 }
