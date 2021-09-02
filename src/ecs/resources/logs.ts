@@ -13,7 +13,7 @@ export class Logs extends Resource implements ILogs {
   public logGroup!: logs.ILogGroup;
   public createResources(props: Props): void {
     this.logGroup = new logs.LogGroup(this.scope, `LogGroup-${props.projectName}`, {
-      logGroupName: `/takano/${props.projectName}`,
+      logGroupName: `/ecs/${props.projectName}`,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
   }
