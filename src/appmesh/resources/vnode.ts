@@ -1,5 +1,4 @@
 import * as appmesh from '@aws-cdk/aws-appmesh';
-import { IService } from '@aws-cdk/aws-servicediscovery';
 import { Resource } from '../resource';
 
 interface Props {

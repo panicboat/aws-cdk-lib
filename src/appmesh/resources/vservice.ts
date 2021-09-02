@@ -1,4 +1,3 @@
-import * as cdk from '@aws-cdk/core';
 import * as appmesh from '@aws-cdk/aws-appmesh';
 import { IService } from '@aws-cdk/aws-servicediscovery';
 import { Resource } from '../resource';
