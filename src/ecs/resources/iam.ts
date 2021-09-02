@@ -4,6 +4,14 @@ import { Resource } from '../resource';
 
 interface Props {
   projectName: string;
+  ecsTaskExecutionRole: {
+    managedPolicies: iam.IManagedPolicy[];
+    inlinePolicies: iam.Policy[];
+  };
+  ecsTaskRole: {
+    managedPolicies: iam.IManagedPolicy[];
+    inlinePolicies: iam.Policy[];
+  };
 }
 interface IIam {
   readonly executionRole: iam.IRole;
@@ -26,7 +34,10 @@ export class Iam extends Resource implements IIam {
         iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'),
         // iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
         // iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess'),
-      ],
+      ].concat(props.ecsTaskExecutionRole.managedPolicies),
+    });
+    props.ecsTaskExecutionRole.inlinePolicies.forEach(inlinePolicy => {
+      this.executionRole.attachInlinePolicy(inlinePolicy);
     });
   }
 
@@ -42,7 +53,10 @@ export class Iam extends Resource implements IIam {
         // iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchFullAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('AWSXRayDaemonWriteAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('AWSAppMeshEnvoyAccess'),
-      ]
+      ].concat(props.ecsTaskRole.managedPolicies),
+    });
+    props.ecsTaskRole.inlinePolicies.forEach(inlinePolicy => {
+      this.taskRole.attachInlinePolicy(inlinePolicy);
     });
   }
 }
