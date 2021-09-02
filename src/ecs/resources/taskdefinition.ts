@@ -40,7 +40,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       executionRole: props.executionRole,
     });
     this.taskDefinition.addContainer('envoy', {
-      image: ecs.ContainerImage.fromRegistry('856666278305.dkr.ecr.ap-east-1.amazonaws.com/aws-appmesh-envoy:v1.19.0.0-prod'),
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/appmesh/aws-appmesh-envoy:v1.19.1.0-prod'),
       containerName: 'envoy',
       user: '1337',
       essential: true,

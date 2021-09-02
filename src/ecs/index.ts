@@ -4,7 +4,6 @@ import { ISecurityGroup, ISubnet } from '@aws-cdk/aws-ec2';
 import { IManagedPolicy, Policy } from '@aws-cdk/aws-iam';
 import { INamespace } from '@aws-cdk/aws-servicediscovery';
 import { LogGroup } from '@aws-cdk/aws-logs';
-import { Repository } from './resources/repository';
 import { Iam } from './resources/iam';
 import { TaskDefinition } from './resources/taskdefinition';
 import { Service } from './resources/service';
@@ -43,9 +42,6 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
       ecsTaskExecutionRole: { managedPolicies: props.ecsTaskExecutionRole.managedPolicies, inlinePolicies: props.ecsTaskExecutionRole.inlinePolicies },
       ecsTaskRole: { managedPolicies: props.ecsTaskRole.managedPolicies, inlinePolicies: props.ecsTaskRole.inlinePolicies },
     });
-
-    const repository = new Repository(this);
-    repository.createResources({ projectName: props.projectName });
 
     const taskdef = new TaskDefinition(this);
     taskdef.createResources({
