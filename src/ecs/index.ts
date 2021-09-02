@@ -6,6 +6,7 @@ import { Repository } from './resources/repository';
 import { Iam } from './resources/iam';
 import { TaskDefinition } from './resources/taskdefinition';
 import { Service } from './resources/service';
+import { ISecurityGroup, ISubnet } from '@aws-cdk/aws-ec2';
 
 interface Props {
   projectName: string;
@@ -18,6 +19,8 @@ interface Props {
   cluster: ecs.ICluster;
   namespace: INamespace;
   desiredCount: number;
+  securityGroups: ISecurityGroup[];
+  subnets: ISubnet[];
 }
 interface IEcsResources {
 }
@@ -38,6 +41,9 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
     });
 
     const service = new Service(this);
-    service.createResources({ projectName: props.projectName, cluster: props.cluster, taskDefinition: taskdef.taskDefinition, namespace: props.namespace, desiredCount: props.desiredCount });
+    service.createResources({
+      projectName: props.projectName, cluster: props.cluster, taskDefinition: taskdef.taskDefinition, namespace: props.namespace,
+      desiredCount: props.desiredCount, securityGroups: props.securityGroups, subnets: props.subnets,
+    });
   }
 }
