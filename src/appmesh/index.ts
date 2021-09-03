@@ -21,14 +21,14 @@ export class MeshResources extends cdk.Construct implements IMeshResources {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
+    const node = new VirtualNode(this);
+    node.createResources({ projectName: props.projectName, mesh: props.mesh, nodes: props.nodes });
+
     const router = new VirtualRouter(this);
     router.createResources({ projectName: props.projectName, mesh: props.mesh, vRouterListeners: props.vRouterListeners });
 
     const service = new VirtualService(this);
     service.createResources({ projectName: props.projectName, serviceName: props.serviceName, router: router.router });
-
-    const node = new VirtualNode(this);
-    node.createResources({ projectName: props.projectName, mesh: props.mesh, nodes: props.nodes });
 
     this.vRouter = router.router;
     this.weightedTargets = node.weightedTargets;
