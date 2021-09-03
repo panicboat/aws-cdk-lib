@@ -1,8 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
 import { ILogGroup } from '@aws-cdk/aws-logs';
-import { Resource } from '../resource';
 import { IRole } from '@aws-cdk/aws-iam';
+import { Resource } from '../resource';
 
 interface Props {
   projectName: string;
