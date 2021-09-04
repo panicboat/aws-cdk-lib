@@ -37,7 +37,7 @@ export class VpcRouteTable extends Resource implements IRouteTable {
       routeTableId: routetable.ref,
     });
     for (let j = 0; j < props.principal.vpcCidrBlock.length; j++) {
-      // For master account
+      // For primary account
       const route = new CfnRoute(scope, `PublicRouteTableTgw${props.principal.vpcCidrBlock[j]}`, {
         destinationCidrBlock: props.principal.vpcCidrBlock[j],
         transitGatewayId: props.transitGatewayId,
@@ -61,14 +61,14 @@ export class VpcRouteTable extends Resource implements IRouteTable {
         vpcId: props.vpcId,
       });
       if (0 < props.natGatewayIds.length) {
-        // For master account
+        // For primary account
         new CfnRoute(scope, `ProtectedRouteNgw${this.getAvailabilityZoneNames()[i]}`, {
           destinationCidrBlock: '0.0.0.0/0',
           natGatewayId: props.natGatewayIds[i],
           routeTableId: routetable.ref,
         });
       } else if (0 < props.principal.transitGatewayId.length) {
-        // For child accounts
+        // For secondary accounts
         const route = new CfnRoute(scope, `ProtectedRoute${this.getAvailabilityZoneNames()[i]}`, {
           destinationCidrBlock: '0.0.0.0/0',
           transitGatewayId: props.principal.transitGatewayId,

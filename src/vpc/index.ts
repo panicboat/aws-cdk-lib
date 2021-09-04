@@ -11,10 +11,10 @@ interface Props {
   projectName: string;
   cidrBlock: string;
   principal?: {
-    accountIds?: string[];                    // For master accounts
-    vpcCidrBlock?: string[];                  // For master accounts
-    transitGatewayId?: string;                // For child accounts
-    tgwAttachmentIds?: string[];              // For master accounts
+    accountIds?: string[];                    // For primary accounts
+    vpcCidrBlock?: string[];                  // For primary accounts
+    transitGatewayId?: string;                // For secondary accounts
+    tgwAttachmentIds?: string[];              // For primary accounts
   };
   endpoints?: { serviceName: string; privateDnsEnabled: boolean }[];
 }

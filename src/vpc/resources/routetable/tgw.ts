@@ -16,7 +16,7 @@ interface IRouteTable {
 export class TgwRouteTable extends Resource implements IRouteTable {
   public createResources(props: Props): void {
     if (0 < props.transitGatewayId.length) {
-      // For master account
+      // For primary account
       const routetable = new CfnTransitGatewayRouteTable(this.scope, 'TransitGatewayRouteTable', {
         transitGatewayId: props.transitGatewayId,
       });

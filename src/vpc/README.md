@@ -2,7 +2,7 @@
 
 ## Usage
 
-### Step1. Deploy with the master account.
+### Step1. Deploy with the primary account.
 
 ```typescript
     new VpcResources(this, id, {
@@ -16,7 +16,7 @@
     });
 ```
 
-### Step2. Deploy with the child account.
+### Step2. Deploy with the secondary account.
 
 notice : Need to approve the share of the transitgateway before execution.
 
@@ -25,12 +25,12 @@ notice : Need to approve the share of the transitgateway before execution.
       projectName: process.env.ProjectName!,
       cidrBlock: process.env.VpcCidrBlock!,
       principal: {
-        transitGatewayId: process.env.TransitGatewayId!, // master account's transit gateway id
+        transitGatewayId: process.env.TransitGatewayId!, // primary account's transit gateway id
       },
     });
 ```
 
-### Step3. Deploy with the master account.
+### Step3. Deploy with the primary account.
 
 ```typescript
     new VpcResources(this, id, {

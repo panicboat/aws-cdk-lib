@@ -30,15 +30,15 @@ export class Gateway extends Resource implements IGateway {
   public createResources(props: Props): void {
     this.createInternetGateway(this.scope, props);
     if (props.principal.transitGatewayId.length === 0) {
-      // For master account
+      // For primary account
       this.createNatGateway(this.scope, props);
     }
     if (0 < props.principal.accountIds.length) {
-      // For master account
+      // For primary account
       this.createTransitGateway(this.scope, this.stack, props);
     }
     if (0 < props.principal.transitGatewayId.length) {
-      // For child accounts
+      // For secondary accounts
       this.createTransitGatewayAttachment(this.scope, props, props.principal.transitGatewayId);
     }
   }
