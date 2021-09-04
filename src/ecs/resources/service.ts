@@ -33,6 +33,8 @@ export class Service extends Resource implements IService {
         type: ecs.DeploymentControllerType.ECS
       },
       desiredCount: props.desiredCount,
+      enableECSManagedTags: true,
+      enableExecuteCommand: true,
       securityGroups: props.securityGroups,
       serviceName: props.projectName,
       vpcSubnets: {
