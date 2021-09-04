@@ -50,7 +50,7 @@ export class Subnet extends Resource implements ISubnet {
       });
     });
 
-    this.public = resources[SubnetType.PRIVATE];
+    this.public = resources[SubnetType.PUBLIC];
     this.private = resources[SubnetType.PRIVATE];
     this.isolated = resources[SubnetType.ISOLATED];
   }
