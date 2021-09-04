@@ -9,28 +9,37 @@ interface Props {
   serviceName: string;
   mesh: appmesh.IMesh;
   vRouterListeners: appmesh.VirtualRouterListener[];
+  grpcRoute?: { name: string, match: appmesh.GrpcRouteMatch }[];
+  httpRoute?: { name: string, match: appmesh.HttpRouteMatch }[];
+  http2Route?: { name: string, match: appmesh.HttpRouteMatch }[];
+  tcpRoute?: { name: string }[];
   nodes: { name: string, hostname: string, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
 }
 interface IMeshResources {
-  readonly vRouter: appmesh.IVirtualRouter;
-  readonly weightedTargets: appmesh.WeightedTarget[];
 }
 export class MeshResources extends cdk.Construct implements IMeshResources {
-  public vRouter!: appmesh.IVirtualRouter;
-  public weightedTargets!: appmesh.WeightedTarget[];
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
+
+    let grpcRoute = this.getValue(props.grpcRoute, []);
+    let httpRoute = this.getValue(props.httpRoute, []);
+    let http2Route = this.getValue(props.http2Route, []);
+    let tcpRoute = this.getValue(props.tcpRoute, []);
 
     const node = new VirtualNode(this);
     node.createResources({ projectName: props.projectName, mesh: props.mesh, nodes: props.nodes });
 
     const router = new VirtualRouter(this);
-    router.createResources({ projectName: props.projectName, mesh: props.mesh, vRouterListeners: props.vRouterListeners });
+    router.createResources({
+      projectName: props.projectName, mesh: props.mesh, vRouterListeners: props.vRouterListeners, weightedTargets: node.weightedTargets,
+      grpcRoute: grpcRoute, httpRoute: httpRoute, http2Route: http2Route, tcpRoute: tcpRoute
+    });
 
     const service = new VirtualService(this);
     service.createResources({ projectName: props.projectName, serviceName: props.serviceName, router: router.router });
+  }
 
-    this.vRouter = router.router;
-    this.weightedTargets = node.weightedTargets;
+  private getValue(inputValue: any, defaultValue: any): any {
+    return inputValue !== undefined ? inputValue : defaultValue;
   }
 }
