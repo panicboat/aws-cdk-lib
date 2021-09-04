@@ -31,8 +31,10 @@ interface Props {
   };
 }
 interface IEcsResources {
+  readonly service: ecs.FargateService;
 }
 export class EcsResources extends cdk.Construct implements IEcsResources {
+  public service!: ecs.FargateService;
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
@@ -54,5 +56,6 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
       projectName: props.projectName, cluster: props.cluster, taskDefinition: taskdef.taskDefinition, namespace: props.namespace,
       desiredCount: props.desiredCount, securityGroups: props.securityGroups, subnets: props.subnets,
     });
+    this.service = service.service;
   }
 }

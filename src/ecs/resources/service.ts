@@ -13,9 +13,11 @@ interface Props {
   subnets: ISubnet[];
 }
 interface IService {
+  readonly service: ecs.FargateService;
   createResources(props: Props): void;
 }
 export class Service extends Resource implements IService {
+  public service!: ecs.FargateService;
   public createResources(props: Props): void {
     const service = new ecs.FargateService(this.scope, `Service-${props.projectName}`, {
       cluster: props.cluster,
@@ -37,5 +39,6 @@ export class Service extends Resource implements IService {
         subnets: props.subnets
       },
     });
+    this.service = service;
   }
 }
