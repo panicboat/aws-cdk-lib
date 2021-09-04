@@ -16,7 +16,7 @@ interface Props {
     http2?: { name: string, match: appmesh.HttpRouteMatch }[];
     tcp?: { name: string }[];
   }
-  nodes: { name: string, service?: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
+  nodes: { name: string, service?: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[];
 }
 interface IMeshResources {
 }
