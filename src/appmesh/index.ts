@@ -1,5 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as appmesh from '@aws-cdk/aws-appmesh';
+import { IService } from '@aws-cdk/aws-servicediscovery';
 import { VirtualRouter } from './resources/vrouter';
 import { VirtualService } from './resources/vservice';
 import { VirtualNode } from './resources/vnode';
@@ -15,7 +16,7 @@ interface Props {
     http2?: { name: string, match: appmesh.HttpRouteMatch }[];
     tcp?: { name: string }[];
   }
-  nodes: { name: string, hostname: string, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
+  nodes: { name: string, service?: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
 }
 interface IMeshResources {
 }

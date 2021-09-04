@@ -1,10 +1,11 @@
 import * as appmesh from '@aws-cdk/aws-appmesh';
+import { IService } from '@aws-cdk/aws-servicediscovery';
 import { Resource } from '../resource';
 
 interface Props {
   projectName: string;
   mesh: appmesh.IMesh;
-  nodes: { name: string, hostname: string, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
+  nodes: { name: string, service?: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number }[];
 }
 interface IVirtualNode {
   readonly weightedTargets: appmesh.WeightedTarget[];
@@ -16,7 +17,7 @@ export class VirtualNode extends Resource implements IVirtualNode {
     props.nodes.forEach(data => {
       const node = props.mesh.addVirtualNode(`VirtualNode${data.name}`, {
         virtualNodeName: data.name,
-        serviceDiscovery: appmesh.ServiceDiscovery.dns(data.hostname),
+        serviceDiscovery: data.service? appmesh.ServiceDiscovery.cloudMap(data.service) : undefined,
         listeners: data.vNodeListeners,
         accessLog: appmesh.AccessLog.fromFilePath('/dev/stdout'),
       });
