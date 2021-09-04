@@ -69,7 +69,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
     });
     this.taskDefinition.addContainer('xray-daemon', {
       containerName: 'xray-daemon',
-      image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon'),
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/xray/aws-xray-daemon:latest'),
       user: '1337',
       essential: true,
       cpu: 32,

@@ -8,15 +8,16 @@ interface Props {
   router: appmesh.IVirtualRouter;
 }
 interface IVirtualService {
-  readonly service: IService;
+  readonly service: appmesh.IVirtualService;
   createResources(props: Props): void;
 }
 export class VirtualService extends Resource implements IVirtualService {
-  public service!: IService;
+  public service!: appmesh.IVirtualService;
   public createResources(props: Props): void {
-    new appmesh.VirtualService(this.scope, 'VirtualService', {
+    const service = new appmesh.VirtualService(this.scope, 'VirtualService', {
       virtualServiceProvider: appmesh.VirtualServiceProvider.virtualRouter(props.router),
       virtualServiceName: props.serviceName,
     });
+    this.service = service;
   }
 }
