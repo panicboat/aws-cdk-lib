@@ -15,15 +15,7 @@ interface IEndpoint {
 }
 export class Endpoint extends Resource implements IEndpoint {
   public createResources(props: Props): void {
-    let endpoints: { serviceName: string; privateDnsEnabled: boolean }[] = [
-      { serviceName: 'ssm', privateDnsEnabled: true },
-      { serviceName: 'ssmmessages', privateDnsEnabled: true },
-      { serviceName: 'ec2messages', privateDnsEnabled: true },
-      // { serviceName: 's3', privateDnsEnabled: false },
-      { serviceName: 'ecr.dkr', privateDnsEnabled: false },
-      { serviceName: 'ecr.api', privateDnsEnabled: false },
-    ].concat(props.endpoints);
-    endpoints.forEach(endpoint => {
+    props.endpoints.forEach(endpoint => {
       new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoint.serviceName}`, {
         serviceName: `com.amazonaws.${this.stack.region}.${endpoint.serviceName}`,
         vpcId: props.vpcId,
