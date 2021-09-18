@@ -21,7 +21,7 @@ export class SecurityGroup extends Resource implements ISecurityGroup {
     new CfnSecurityGroupIngress(this.scope, 'SecurityGroupIngress', {
       ipProtocol: '-1',
       groupId: sg.ref,
-      cidrIp: props.cidrBlock,
+      sourceSecurityGroupId: sg.ref,
     });
     this.main = sg.ref;
   }
