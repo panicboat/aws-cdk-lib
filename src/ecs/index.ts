@@ -33,8 +33,8 @@ interface Props {
   autoScale: {
     minCapacity: number;
     maxCapacity: number;
-    cpuScalingSteps: ScalingInterval[];
-    cpuTargetUtilizationPercent: number;
+    cpuScalingSteps?: ScalingInterval[];
+    cpuTargetUtilizationPercent?: number;
   }
 }
 interface IEcsResources {
@@ -68,8 +68,8 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
     autoscale.createResources({
       projectName: props.projectName, service: service.service,
       minCapacity: props.autoScale.minCapacity, maxCapacity: props.autoScale.maxCapacity,
-      cpuScalingSteps: props.autoScale.cpuScalingSteps,
-      cpuTargetUtilizationPercent: props.autoScale.cpuTargetUtilizationPercent
+      cpuScalingSteps: props.autoScale.cpuScalingSteps || [],
+      cpuTargetUtilizationPercent: props.autoScale.cpuTargetUtilizationPercent || 0,
     });
 
     this.service = service.service;
