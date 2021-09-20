@@ -51,15 +51,15 @@ export class Subnet extends Resource implements ISubnet {
     });
 
     this.public = resources[SubnetType.PUBLIC];
-    this.private = resources[SubnetType.PRIVATE];
-    this.isolated = resources[SubnetType.ISOLATED];
+    this.private = resources[SubnetType.PRIVATE_WITH_NAT];
+    this.isolated = resources[SubnetType.PRIVATE_ISOLATED];
   }
 
   private getSubnet(): { label: string, mask: string }[] {
     return [
-      { label: SubnetType.PRIVATE,  mask: '255.255.224.000' },
-      { label: SubnetType.PUBLIC,   mask: '255.255.240.000' },
-      { label: SubnetType.ISOLATED, mask: '255.255.240.000' },
+      { label: SubnetType.PRIVATE_WITH_NAT, mask: '255.255.224.000' },
+      { label: SubnetType.PUBLIC,           mask: '255.255.240.000' },
+      { label: SubnetType.PRIVATE_ISOLATED, mask: '255.255.240.000' },
     ]
   }
 }

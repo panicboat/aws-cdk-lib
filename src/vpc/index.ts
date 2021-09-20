@@ -16,7 +16,7 @@ interface Props {
     transitGatewayId?: string;                // For secondary accounts
     tgwAttachmentIds?: string[];              // For primary accounts
   };
-  endpoints?: { serviceName: string; privateDnsEnabled: boolean }[];
+  endpoints?: { serviceName: string; privateDnsEnabled: boolean, vpcEndpointType: string }[];
 }
 interface IVpcResources {
 }

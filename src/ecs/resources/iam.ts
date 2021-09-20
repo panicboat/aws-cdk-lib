@@ -44,7 +44,6 @@ export class Iam extends Resource implements IIam {
       roleName: `EcsTaskRole-${props.projectName}`,
       assumedBy: new iam.CompositePrincipal(
         new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
-        new iam.ServicePrincipal('events.amazonaws.com'),
       ),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonEC2ContainerServiceEventsRole'),

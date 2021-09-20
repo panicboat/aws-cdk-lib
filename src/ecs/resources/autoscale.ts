@@ -16,6 +16,10 @@ interface IAutoScale {
 }
 export class AutoScale extends Resource implements IAutoScale {
   public createResources(props: Props): void {
+    if (props.minCapacity === props.maxCapacity) {
+      return;
+    }
+
     const capacity = props.service.autoScaleTaskCount({
       minCapacity: props.minCapacity,
       maxCapacity: props.maxCapacity,
