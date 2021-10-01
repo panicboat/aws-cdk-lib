@@ -17,7 +17,7 @@
       projectName: process.env.PROJECT_NAME!,
       principal: {
         primary: {
-          accountId: cdk.Stack.of(this).account,
+          accountId: process.env.PRIMARY_ACCOUNT_ID,
         }
       },
     });
