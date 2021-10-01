@@ -15,9 +15,13 @@ interface Props {
     private: string[];
   };
   principal: {
-    vpcCidrBlock: string[];
-    transitGatewayId: string;
-    tgwAttachmentIds: string[];
+    primary: {
+      transitGatewayId: string;
+    };
+    secondary: {
+      vpcCidrBlock: string[];
+      tgwAttachmentIds: string[];
+    };
   };
 }
 interface IRouteTable {
@@ -29,14 +33,14 @@ export class RouteTable extends Resource implements IRouteTable {
     vpcRouteTable.createResources({
       projectName: props.projectName, vpcId: props.vpcId, internetGatewayId: props.internetGatewayId, natGatewayIds: props.natGatewayIds, transitGatewayId: props.transitGatewayId,
       subnets: { public: props.subnets.public, private: props.subnets.private },
-      principal: { vpcCidrBlock: props.principal.vpcCidrBlock, transitGatewayId: props.principal.transitGatewayId },
+      principal: { vpcCidrBlock: props.principal.secondary.vpcCidrBlock, transitGatewayId: props.principal.primary.transitGatewayId },
       attachement: props.attachment
     });
 
     const tgwRouteTable = new TgwRouteTable(this.scope);
     tgwRouteTable.createResources({
       projectName: props.projectName, transitGatewayId: props.transitGatewayId,
-      principal: { tgwAttachmentIds: props.principal.tgwAttachmentIds },
+      principal: { tgwAttachmentIds: props.principal.secondary.tgwAttachmentIds },
       attachement: props.attachment
     });
   }

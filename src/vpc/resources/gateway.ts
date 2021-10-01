@@ -7,13 +7,17 @@ interface Props {
   projectName: string;
   vpcId: string;
   subnets: {
-    public: string[],
-    private: string[],
-  },
+    public: string[];
+    private: string[];
+  };
   principal: {
-    accountIds: string[];
-    transitGatewayId: string;
-  }
+    primary: {
+      transitGatewayId: string;
+    };
+    secondary: {
+      accountIds: string[];
+    };
+  };
 }
 interface IGateway {
   readonly internetGatewayId: string;
@@ -29,17 +33,17 @@ export class Gateway extends Resource implements IGateway {
   public attachment!: cdk.CfnResource;
   public createResources(props: Props): void {
     this.createInternetGateway(this.scope, props);
-    if (props.principal.transitGatewayId.length === 0) {
+    if (props.principal.primary.transitGatewayId.length === 0) {
       // For primary account
       this.createNatGateway(this.scope, props);
     }
-    if (0 < props.principal.accountIds.length) {
+    if (0 < props.principal.secondary.accountIds.length) {
       // For primary account
       this.createTransitGateway(this.scope, this.stack, props);
     }
-    if (0 < props.principal.transitGatewayId.length) {
+    if (0 < props.principal.primary.transitGatewayId.length) {
       // For secondary accounts
-      this.createTransitGatewayAttachment(this.scope, props, props.principal.transitGatewayId);
+      this.createTransitGatewayAttachment(this.scope, props, props.principal.primary.transitGatewayId);
     }
   }
 
@@ -75,7 +79,7 @@ export class Gateway extends Resource implements IGateway {
     });
     new CfnResourceShare(scope, 'ResourceShare', {
       name: 'Provisioning',
-      principals: props.principal.accountIds,
+      principals: props.principal.secondary.accountIds,
       resourceArns: [
         `arn:aws:ec2:${stack.region}:${stack.account}:transit-gateway/${cdk.Fn.getAtt(tgw.logicalId, 'Id').toString()}`,
       ]

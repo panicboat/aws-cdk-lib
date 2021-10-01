@@ -11,10 +11,15 @@ interface Props {
   projectName: string;
   cidrBlock: string;
   principal?: {
-    accountIds?: string[];                    // For primary accounts
-    vpcCidrBlock?: string[];                  // For primary accounts
-    transitGatewayId?: string;                // For secondary accounts
-    tgwAttachmentIds?: string[];              // For primary accounts
+    primary?: {
+      accountId?: string;
+      transitGatewayId?: string;
+    };
+    secondary?: {
+      accountIds?: string;
+      vpcCidrBlock?: string[];
+      tgwAttachmentIds?: string[];
+    };
   };
   endpoints?: { serviceName: string; privateDnsEnabled: boolean, vpcEndpointType: string }[];
 }
@@ -25,14 +30,16 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     super(scope, id);
 
     let principal = this.getValue(props.principal, {});
-    let accountIds = this.getValue(principal.accountIds, []);
-    let vpcCidrBlock = this.getValue(principal.vpcCidrBlock, []);
-    let tgwAttachmentIds = this.getValue(principal.tgwAttachmentIds, []);
-    let transitGatewayId = this.getValue(principal.transitGatewayId, '');
-    let endpoints = this.getValue(props.endpoints, []);
+    let primary = this.getValue(principal.primary, {});
+    let secondary = this.getValue(principal.secondary, {});
 
     const iam = new Iam(this);
-    iam.createResources({ projectName: props.projectName });
+    iam.createResources({
+      projectName: props.projectName,
+      principal: {
+        primary: { accountId: this.getValue(primary.accountId, '') }
+      },
+    });
 
     const vpc = new Vpc(this);
     vpc.createResources({ projectName: props.projectName, cidrBlock: props.cidrBlock, });
@@ -41,27 +48,44 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     subnet.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
 
     const gateway = new Gateway(this);
-    gateway.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { public: subnet.public, private: subnet.private },
-      principal: { accountIds: accountIds, transitGatewayId: transitGatewayId, },
+    gateway.createResources({
+      projectName: props.projectName,
+      vpcId: vpc.vpcId,
+      subnets: { public: subnet.public, private: subnet.private },
+      principal: {
+        primary: {
+          transitGatewayId: this.getValue(primary.transitGatewayId, '') },
+          secondary: { accountIds: this.getValue(secondary.accountIds, []) } },
     });
 
     const routetable = new RouteTable(this);
-    routetable.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { public: subnet.public, private: subnet.private },
+    routetable.createResources({
+      projectName: props.projectName,
+      vpcId: vpc.vpcId,
+      subnets: { public: subnet.public, private: subnet.private },
       internetGatewayId: gateway.internetGatewayId,
       natGatewayIds: gateway.natGatewayIds,
       transitGatewayId: gateway.transitGatewayId,
       attachment: gateway.attachment,
-      principal: { transitGatewayId: transitGatewayId, tgwAttachmentIds: tgwAttachmentIds, vpcCidrBlock: vpcCidrBlock },
+      principal: {
+        primary: { transitGatewayId: this.getValue(primary.transitGatewayId, '') },
+        secondary: { vpcCidrBlock: this.getValue(secondary.vpcCidrBlock, []), tgwAttachmentIds: this.getValue(secondary.tgwAttachmentIds, []) }
+      },
     });
 
     const sg = new SecurityGroup(this);
     sg.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
 
     const endpoint = new Endpoint(this);
-    endpoint.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, subnets: { private: subnet.private }, securityGroupIds: [ sg.main ], endpoints: endpoints });
+    endpoint.createResources({
+      projectName: props.projectName,
+      vpcId: vpc.vpcId,
+      subnets: { private: subnet.private },
+      securityGroupIds: [ sg.cidrblock ],
+      endpoints: this.getValue(props.endpoints, []) });
   }
 
   private getValue(inputValue: any, defaultValue: any): any {
-    return inputValue !== undefined ? inputValue : defaultValue;
+    return inputValue || defaultValue;
   }
 }

@@ -6,12 +6,13 @@
 
 ```typescript
     new VpcResources(this, id, {
-      projectName: process.env.ProjectName!,
-      cidrBlock: process.env.VpcCidrBlock!,
+      projectName: process.env.PROJECT_NAME!,
+      cidrBlock: process.env.VPC_CIDR_BLOCK!,
       principal: {
-        accountIds: [ process.env.AnotherAccountID! ],      // aws account id
-        vpcCidrBlock: [ process.env.AnotherVpcCidrBlock! ], // vpc cidrblock
-        tgwAttachmentIds: [],
+        secondary: {
+          accountIds: [ process.env.SECONDARY_ACCOUNT_ID! ],
+          vpcCidrBlock: [ process.env.SECONDARY_VPC_CIDR_BLOCK! ],
+        },
       },
     });
 ```
@@ -22,10 +23,13 @@ notice : Need to approve the share of the transitgateway before execution.
 
 ```typescript
     new VpcResources(this, id, {
-      projectName: process.env.ProjectName!,
-      cidrBlock: process.env.VpcCidrBlock!,
+      projectName: process.env.PROJECT_NAME!,
+      cidrBlock: process.env.VPC_CIDR_BLOCK!,
       principal: {
-        transitGatewayId: process.env.TransitGatewayId!, // primary account's transit gateway id
+        primary: {
+          accountId: process.env.PRIMARY_ACCOUNT_ID!,
+          transitGatewayId: process.env.TRANSIT_GATEWAY_ID!,
+        },
       },
     });
 ```
@@ -34,12 +38,14 @@ notice : Need to approve the share of the transitgateway before execution.
 
 ```typescript
     new VpcResources(this, id, {
-      projectName: process.env.ProjectName!,
-      cidrBlock: process.env.VpcCidrBlock!,
+      projectName: process.env.PROJECT_NAME!,
+      cidrBlock: process.env.VPC_CIDR_BLOCK!,
       principal: {
-        accountIds: [ process.env.AnotherAccountID! ],              // aws account id
-        vpcCidrBlock: [ process.env.AnotherVpcCidrBlock! ],         // vpc cidrblock
-        tgwAttachmentIds: [ process.env.AnotherTGWAttachmentID! ],  // transit gateway attachement id
+        secondary: {
+          accountIds: [ process.env.SECONDARY_ACCOUNT_ID! ],
+          vpcCidrBlock: [ process.env.SECONDARY_VPC_CIDR_BLOCK! ],
+          tgwAttachmentIds: [ process.env.SECONDARY_TGW_ATTACHMENT_ID! ],
+        },
       },
     });
 ```
