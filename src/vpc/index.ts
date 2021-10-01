@@ -17,7 +17,7 @@ interface Props {
     };
     secondary?: {
       accountIds?: string;
-      vpcCidrBlock?: string[];
+      cidrBlock?: string[];
       tgwAttachmentIds?: string[];
     };
   };
@@ -34,12 +34,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     let secondary = this.getValue(principal.secondary, {});
 
     const iam = new Iam(this);
-    iam.createResources({
-      projectName: props.projectName,
-      principal: {
-        primary: { accountId: this.getValue(primary.accountId, '') }
-      },
-    });
+    iam.createResources({ projectName: props.projectName, });
 
     const vpc = new Vpc(this);
     vpc.createResources({ projectName: props.projectName, cidrBlock: props.cidrBlock, });
@@ -69,7 +64,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
       attachment: gateway.attachment,
       principal: {
         primary: { transitGatewayId: this.getValue(primary.transitGatewayId, '') },
-        secondary: { vpcCidrBlock: this.getValue(secondary.vpcCidrBlock, []), tgwAttachmentIds: this.getValue(secondary.tgwAttachmentIds, []) }
+        secondary: { cidrBlock: this.getValue(secondary.cidrBlock, []), tgwAttachmentIds: this.getValue(secondary.tgwAttachmentIds, []) }
       },
     });
 

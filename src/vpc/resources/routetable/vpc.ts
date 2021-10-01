@@ -13,7 +13,7 @@ interface Props {
     private: string[],
   };
   principal: {
-    vpcCidrBlock: string[];
+    cidrBlock: string[];
     transitGatewayId: string;
   };
   attachement?: cdk.CfnResource;
@@ -36,10 +36,10 @@ export class VpcRouteTable extends Resource implements IRouteTable {
       gatewayId: props.internetGatewayId,
       routeTableId: routetable.ref,
     });
-    for (let j = 0; j < props.principal.vpcCidrBlock.length; j++) {
+    for (let j = 0; j < props.principal.cidrBlock.length; j++) {
       // For primary account
-      const route = new CfnRoute(scope, `PublicRouteTableTgw${props.principal.vpcCidrBlock[j]}`, {
-        destinationCidrBlock: props.principal.vpcCidrBlock[j],
+      const route = new CfnRoute(scope, `PublicRouteTableTgw${props.principal.cidrBlock[j]}`, {
+        destinationCidrBlock: props.principal.cidrBlock[j],
         transitGatewayId: props.transitGatewayId,
         routeTableId: routetable.ref,
       });

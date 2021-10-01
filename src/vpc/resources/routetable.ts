@@ -19,7 +19,7 @@ interface Props {
       transitGatewayId: string;
     };
     secondary: {
-      vpcCidrBlock: string[];
+      cidrBlock: string[];
       tgwAttachmentIds: string[];
     };
   };
@@ -33,7 +33,7 @@ export class RouteTable extends Resource implements IRouteTable {
     vpcRouteTable.createResources({
       projectName: props.projectName, vpcId: props.vpcId, internetGatewayId: props.internetGatewayId, natGatewayIds: props.natGatewayIds, transitGatewayId: props.transitGatewayId,
       subnets: { public: props.subnets.public, private: props.subnets.private },
-      principal: { vpcCidrBlock: props.principal.secondary.vpcCidrBlock, transitGatewayId: props.principal.primary.transitGatewayId },
+      principal: { cidrBlock: props.principal.secondary.cidrBlock, transitGatewayId: props.principal.primary.transitGatewayId },
       attachement: props.attachment
     });
 
