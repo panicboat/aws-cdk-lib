@@ -16,7 +16,7 @@ interface Props {
       transitGatewayId?: string;
     };
     secondary?: {
-      accountIds?: string;
+      accountIds?: string[];
       cidrBlock?: string[];
       tgwAttachmentIds?: string[];
     };
