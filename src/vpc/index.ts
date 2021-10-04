@@ -48,9 +48,9 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
       vpcId: vpc.vpcId,
       subnets: { public: subnet.public, private: subnet.private },
       principal: {
-        primary: {
-          transitGatewayId: this.getValue(primary.transitGatewayId, '') },
-          secondary: { accountIds: this.getValue(secondary.accountIds, []) } },
+        primary: { transitGatewayId: this.getValue(primary.transitGatewayId, '') },
+        secondary: { accountIds: this.getValue(secondary.accountIds, []) }
+      },
     });
 
     const routetable = new RouteTable(this);
@@ -77,7 +77,8 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
       vpcId: vpc.vpcId,
       subnets: { private: subnet.private },
       securityGroupIds: [ sg.cidrblock ],
-      endpoints: this.getValue(props.endpoints, []) });
+      endpoints: this.getValue(props.endpoints, [])
+    });
   }
 
   private getValue(inputValue: any, defaultValue: any): any {

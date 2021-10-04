@@ -36,7 +36,7 @@ export class SecurityGroup extends Resource implements ISecurityGroup {
   private createForEndpoints(props: Props): string {
     const sg = new CfnSecurityGroup(this.scope, 'VpcSecurityGroup', {
       groupDescription: 'security group for vpc cidr.',
-      groupName: 'cidrblock',
+      groupName: 'cidr-block',
       vpcId: props.vpcId,
     });
     new CfnSecurityGroupIngress(this.scope, 'VpcSecurityGroupIngress', {
