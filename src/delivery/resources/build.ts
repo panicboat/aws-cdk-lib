@@ -19,9 +19,9 @@ interface Props {
   github: {
     owner: string
     repository: string
-  }
-  release: {
     version: string
+  }
+  principal: {
     account?: string
     repository?: string
   }
@@ -33,13 +33,13 @@ interface IBuild {
 export class Build extends Resource implements IBuild {
   projects: { build: codebuild.PipelineProject[]; release: codebuild.PipelineProject[]; bridge: codebuild.PipelineProject[]; } = { build: [], release: [], bridge: [] };
   public createResources(props: Props): void {
-    if (props.release.account === undefined || props.release.repository === undefined) {
-      // for production
-      this.projects.bridge.push(this.createBridgeProject(props));
-    } else {
+    if (props.principal.account !== undefined && props.principal.repository !== undefined) {
       // for developments
       this.projects.build.push(this.createBuildProject(props));
       this.projects.release.push(this.createReleaseProject(props));
+    } else {
+      // for production
+      this.projects.bridge.push(this.createBridgeProject(props));
     }
   }
 
@@ -136,13 +136,13 @@ export class Build extends Resource implements IBuild {
             value: props.github.repository,
           },
           'RELEASE_VERSION': {
-            value: props.release.version,
+            value: props.github.version,
           },
           'RELEASE_ACCOUNT_ID': {
-            value: props.release.account,
+            value: props.principal.account,
           },
           'RELEASE_REPOSITORY_URI': {
-            value: props.release.repository,
+            value: props.principal.repository,
           },
         },
       },
@@ -228,7 +228,7 @@ export class Build extends Resource implements IBuild {
             value: props.github.repository,
           },
           'RELEASE_VERSION': {
-            value: props.release.version,
+            value: props.github.version,
           },
         },
       },

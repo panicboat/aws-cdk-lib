@@ -12,7 +12,6 @@ import { IBaseService } from '@aws-cdk/aws-ecs';
 
 interface Props {
   projectName: string
-  artifactBucket: IBucket
   credentialArn: string
   github: {
     owner: string
@@ -23,24 +22,31 @@ interface Props {
   stages: {
     initialize: {
       stageName: string
-      projects: PipelineProject[]
+      actions: IAction[]
     }[]
     build: {
       stageName: string
-      projects: PipelineProject[]
+      actions: IAction[]
     }[]
     deploy: {
       stageName: string
-      projects: PipelineProject[]
+      actions: IAction[]
     }[]
     finalize: {
       stageName: string
-      projects: PipelineProject[]
+      actions: IAction[]
     }[]
   }
   deploy: {
     service: IBaseService
     role: IRole
+    artifact: {
+      bucket: IBucket
+      outputs: {
+        source: codepipeline.Artifact
+        build: codepipeline.Artifact
+      }
+    }
   }
   provisioning: {
     build: PipelineProject[]
@@ -57,12 +63,9 @@ export class Pipeline extends Resource implements IPipeline {
   }
 
   private createPipeline(props: Props): void {
-    const sourceOutput = new codepipeline.Artifact();
-    const buildOutput = new codepipeline.Artifact();
-
     const pipeline = new codepipeline.Pipeline(this.scope, `Pipeline-${props.projectName}`, {
       pipelineName: props.projectName,
-      artifactBucket: props.artifactBucket,
+      artifactBucket: props.deploy.artifact.bucket,
       crossAccountKeys: false,
       restartExecutionOnUpdate: false,
       role: props.deploy.role,
@@ -71,52 +74,52 @@ export class Pipeline extends Resource implements IPipeline {
     if (props.github.branch !== undefined) {
       pipeline.addStage({
         stageName: 'SourceStage',
-        actions: [this.getSourceActions(props, { output: sourceOutput })],
+        actions: [this.getSourceActions(props, { output: props.deploy.artifact.outputs.source })],
       });
     } else {
       pipeline.addStage({
         stageName: 'SourceStage',
-        actions: [this.getEcrSourceAction(props, { output: sourceOutput })],
+        actions: [this.getEcrSourceAction(props, { output: props.deploy.artifact.outputs.source })],
       });
     }
 
     props.stages.initialize.forEach(stage => {
       pipeline.addStage({
         stageName: stage.stageName,
-        actions: this.getActions(stage.projects, { input: sourceOutput, outputs: [] }),
+        actions: stage.actions,
       });
     });
 
     if (0 < props.provisioning.build.length) {
       pipeline.addStage({
         stageName: 'BuildStage',
-        actions: this.getActions(props.provisioning.build, { input: sourceOutput, outputs: [buildOutput] }),
+        actions: this.getActions(props.provisioning.build, { input: props.deploy.artifact.outputs.source, outputs: [props.deploy.artifact.outputs.build] }),
       })
     }
 
     if (0 < props.provisioning.bridge.length) {
       pipeline.addStage({
         stageName: 'BridgeStage',
-        actions: this.getActions(props.provisioning.bridge, { input: sourceOutput, outputs: [buildOutput] }),
+        actions: this.getActions(props.provisioning.bridge, { input: props.deploy.artifact.outputs.source, outputs: [props.deploy.artifact.outputs.build] }),
       })
     }
 
     props.stages.build.forEach(stage => {
       pipeline.addStage({
         stageName: stage.stageName,
-        actions: this.getActions(stage.projects, { input: sourceOutput, outputs: [] }),
+        actions: stage.actions,
       });
     });
 
     pipeline.addStage({
       stageName: 'DeployStage',
-      actions: [new EcsDeployAction({ actionName: 'EcsDeployAction', service: props.deploy.service, role: props.deploy.role, input: buildOutput })]
+      actions: [new EcsDeployAction({ actionName: 'EcsDeployAction', service: props.deploy.service, role: props.deploy.role, input: props.deploy.artifact.outputs.build })]
     });
 
     props.stages.deploy.forEach(stage => {
       pipeline.addStage({
         stageName: stage.stageName,
-        actions: this.getActions(stage.projects, { input: sourceOutput, outputs: [] }),
+        actions: stage.actions,
       });
     });
 
@@ -130,14 +133,14 @@ export class Pipeline extends Resource implements IPipeline {
     props.stages.finalize.forEach(stage => {
       pipeline.addStage({
         stageName: stage.stageName,
-        actions: this.getActions(stage.projects, { input: sourceOutput, outputs: [] }),
+        actions: stage.actions,
       });
     });
 
     if (0 < props.provisioning.release.length) {
       pipeline.addStage({
         stageName: 'ReleaseStage',
-        actions: this.getActions(props.provisioning.release, { input: sourceOutput, outputs: [] }),
+        actions: this.getActions(props.provisioning.release, { input: props.deploy.artifact.outputs.source, outputs: [] }),
       })
     }
   }
