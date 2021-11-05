@@ -186,8 +186,8 @@ export class Build extends Resource implements IBuild {
               'release_tag=${RELEASE_TAG}',
               'release_name=${RELEASE_TAG}',
               'description=""',
-              'params="{\"tag_name\":\"$release_tag\",\"target_commitish\":\"$CODEBUILD_RESOLVED_SOURCE_VERSION\",\"name\":\"$release_name\",\"body\":\"$description\",\"draft\":false,\"prerelease\":false}"',
-              'curl -X POST -H "$authorization" -H "$content_type" -d "$params" https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/releases',
+              'params=\"{\\\"tag_name\\\":\\\"$release_tag\\\",\\\"target_commitish\\\":\\\"$CODEBUILD_RESOLVED_SOURCE_VERSION\\\",\\\"name\\\":\\\"$release_name\\\",\\\"body\\\":\\\"$description\\\",\\\"draft\\\":false,\\\"prerelease\\\":false}\"',
+              'curl -X POST -H \"$authorization\" -H \"$content_type\" -d \"$params\" https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/releases',
             ],
             finally: [
               '$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)',
@@ -255,7 +255,7 @@ export class Build extends Resource implements IBuild {
             commands: [
               'echo Logging in to Amazon ECR...',
               '$(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)',
-              'IMAGE_TAG=`curl -X GET -H "Authorization:token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/releases | jq -r \'. | select(.[0].tag_name | startswith("\'$RELEASE_VERSION\'"))\' | jq -r .[0].tag_name`',
+              'IMAGE_TAG=`curl -X GET -H \"Authorization:token ${GITHUB_TOKEN}\" https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/releases | jq -r \'. | select(.[0].tag_name | startswith(\"\'$RELEASE_VERSION\'\"))\' | jq -r .[0].tag_name`',
             ],
             finally: [],
           },
