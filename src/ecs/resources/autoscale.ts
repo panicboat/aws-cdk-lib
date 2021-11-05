@@ -8,8 +8,10 @@ interface Props {
   service: FargateService;
   minCapacity: number;
   maxCapacity: number;
-  cpuScalingSteps: autoscaling.ScalingInterval[];
-  cpuTargetUtilizationPercent: number;
+  cpuUtilization: {
+    steps: autoscaling.ScalingInterval[];
+    target: number;
+  }
 }
 interface IAutoScale {
   createResources(props: Props): void;
@@ -26,18 +28,18 @@ export class AutoScale extends Resource implements IAutoScale {
     });
 
     // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
-    if (props.cpuScalingSteps.length !== 0) {
+    if (props.cpuUtilization.steps.length !== 0) {
       capacity.scaleOnMetric(`StepScaling4CpuUtilization-${props.projectName}`, {
         metric: props.service.metricCpuUtilization(),
-        scalingSteps: props.cpuScalingSteps,
+        scalingSteps: props.cpuUtilization.steps,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
       });
     }
 
     // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
-    if (props.cpuTargetUtilizationPercent !== 0) {
+    if (props.cpuUtilization.target !== 0) {
       capacity.scaleOnCpuUtilization(`TargetTrackingScaling4CpuUtilization-${props.projectName}`, {
-        targetUtilizationPercent: props.cpuTargetUtilizationPercent,
+        targetUtilizationPercent: props.cpuUtilization.target,
       });
     }
   }

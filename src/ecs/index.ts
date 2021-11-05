@@ -33,8 +33,10 @@ interface Props {
   autoScale: {
     minCapacity: number;
     maxCapacity: number;
-    cpuScalingSteps?: ScalingInterval[];
-    cpuTargetUtilizationPercent?: number;
+    cpuUtilization?: {
+      steps?: ScalingInterval[];
+      target?: number;
+    }
   }
 }
 interface IEcsResources {
@@ -44,6 +46,8 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
   public service!: ecs.FargateService;
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
+
+    let cpuUtilization = props.autoScale.cpuUtilization || {}
 
     const iam = new Iam(this);
     iam.createResources({
@@ -68,8 +72,7 @@ export class EcsResources extends cdk.Construct implements IEcsResources {
     autoscale.createResources({
       projectName: props.projectName, service: service.service,
       minCapacity: props.autoScale.minCapacity, maxCapacity: props.autoScale.maxCapacity,
-      cpuScalingSteps: props.autoScale.cpuScalingSteps || [],
-      cpuTargetUtilizationPercent: props.autoScale.cpuTargetUtilizationPercent || 0,
+      cpuUtilization: { steps: cpuUtilization.steps || [], target : cpuUtilization.target || 0, }
     });
 
     this.service = service.service;
