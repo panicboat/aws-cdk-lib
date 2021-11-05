@@ -71,7 +71,7 @@ export class Pipeline extends Resource implements IPipeline {
       role: props.deploy.role,
     });
 
-    if (props.github.branch !== undefined) {
+    if (props.github.branch !== undefined && props.github.branch.length !== 0) {
       pipeline.addStage({
         stageName: 'SourceStage',
         actions: [this.getSourceActions(props, { output: props.deploy.artifact.outputs.source })],
@@ -161,7 +161,7 @@ export class Pipeline extends Resource implements IPipeline {
     return new EcrSourceAction({
       actionName: 'EcrSourceAction',
       repository: repository,
-      imageTag: 'latest',
+      imageTag: props.github.version,
       output: artifact.output,
     });
   }

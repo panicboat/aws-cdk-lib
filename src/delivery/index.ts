@@ -60,9 +60,9 @@ interface Props {
       inlinePolicies: Policy[]
     }
   }
-  principal: {
-    account?: string
-    repository?: string
+  principal?: {
+    account: string
+    repository: string
   }
 }
 interface IDeliveryResources {
