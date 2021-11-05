@@ -12,7 +12,6 @@ interface Props {
   projectName: string
   vpc: IVpc
   securityGroups?: ISecurityGroup[]
-  artifactBucket: IBucket
   credentialArn: string
   service: IBaseService
   build: {
