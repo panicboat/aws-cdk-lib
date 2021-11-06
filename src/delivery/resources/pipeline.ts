@@ -4,6 +4,8 @@ import * as sm from '@aws-cdk/aws-secretsmanager';
 import { IRole } from '@aws-cdk/aws-iam';
 import { IBucket } from '@aws-cdk/aws-s3';
 import { Repository } from '@aws-cdk/aws-ecr'
+import { Rule } from '@aws-cdk/aws-events';
+import { CodePipeline } from '@aws-cdk/aws-events-targets'
 import { PipelineProject } from '@aws-cdk/aws-codebuild';
 import { IAction } from '@aws-cdk/aws-codepipeline';
 import { CodeBuildAction, EcrSourceAction, EcsDeployAction, GitHubSourceAction, ManualApprovalAction } from '@aws-cdk/aws-codepipeline-actions';
@@ -80,6 +82,18 @@ export class Pipeline extends Resource implements IPipeline {
       pipeline.addStage({
         stageName: 'SourceStage',
         actions: [this.getEcrSourceAction(props, { output: props.deploy.artifact.outputs.source })],
+      });
+      new Rule(this.scope, `EcrSourceActionRule-${props.projectName}`, {
+        eventPattern: {
+          source: ['aws.ecr'],
+          detail: {
+            'action-type': ['PUSH'],
+            'image-tag': [props.github.repository],
+            'repository-name': [props.projectName],
+            result: ['SUCCESS'],
+          },
+        },
+        targets: [new CodePipeline(pipeline)],
       });
     }
 
