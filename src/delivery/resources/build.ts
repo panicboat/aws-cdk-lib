@@ -222,6 +222,12 @@ export class Build extends Resource implements IBuild {
         computeType: codebuild.ComputeType.SMALL,
         privileged: true,
         environmentVariables: {
+          'REPOSITORY_URI': {
+            value: `${this.stack.account}.dkr.ecr.${this.stack.region}.amazonaws.com/${props.projectName}`,
+          },
+          'CONTAINER_NAME': {
+            value: props.build.containerName,
+          },
           'GITHUB_OWNER': {
             value: props.github.owner,
           },
