@@ -56,9 +56,13 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
         ENABLE_ENVOY_XRAY_TRACING: '1',
         ENABLE_ENVOY_STATS_TAGS: '1',
       },
-      logging: ecs.LogDriver.awsLogs({
-        streamPrefix: `${props.projectName}-envoy`,
-        logGroup: props.logGroup,
+      logging: ecs.LogDrivers.firelens({
+        options: {
+          Name: 'cloudwatch',
+          region: this.stack.region,
+          log_group_name: props.logGroup.logGroupName,
+          log_stream_prefix: 'envoy-',
+        },
       }),
       healthCheck: {
         command: ['CMD-SHELL', 'curl -s http://localhost:9901/server_info | grep state | grep -q LIVE'],
@@ -72,15 +76,23 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon:latest'),
       user: '1337',
       essential: true,
-      cpu: 32,
-      memoryReservationMiB: 256,
       portMappings: [
         { containerPort: 2000, hostPort: 2000, protocol: ecs.Protocol.UDP },
       ],
-      logging: ecs.LogDriver.awsLogs({
-        streamPrefix: `${props.projectName}-xray`,
-        logGroup: props.logGroup,
+      logging: ecs.LogDrivers.firelens({
+        options: {
+          Name: 'cloudwatch',
+          region: this.stack.region,
+          log_group_name: props.logGroup.logGroupName,
+          log_stream_prefix: 'xray-',
+        },
       }),
+    });
+    this.taskDefinition.addFirelensLogRouter('fluent-bit', {
+      firelensConfig: {
+        type: ecs.FirelensLogRouterType.FLUENTBIT,
+      },
+      image: ecs.ContainerImage.fromRegistry('amazon/aws-for-fluent-bit:latest')
     });
     props.containers.forEach(container => {
       this.taskDefinition.addContainer(container.containerName!, container);
