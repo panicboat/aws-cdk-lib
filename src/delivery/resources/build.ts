@@ -190,7 +190,6 @@ export class Build extends Resource implements IBuild {
               'curl -X POST -H \"$authorization\" -H \"$content_type\" -d \"$params\" https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/releases',
             ],
             finally: [
-              '$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)',
               'docker pull $REPOSITORY_URI:$IMAGE_TAG',
               'docker tag  $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$RELEASE_VERSION',
               'docker tag  $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$RELEASE_TAG',
@@ -200,7 +199,6 @@ export class Build extends Resource implements IBuild {
           },
           post_build: {
             commands: [
-              '$(aws ecr get-login --registry-ids ${RELEASE_ACCOUNT_ID} --region $AWS_DEFAULT_REGION)',
               'docker tag  $REPOSITORY_URI:$RELEASE_VERSION $RELEASE_REPOSITORY_URI:$RELEASE_VERSION',
               'docker tag  $REPOSITORY_URI:$RELEASE_TAG $RELEASE_REPOSITORY_URI:$RELEASE_TAG',
               'docker push $RELEASE_REPOSITORY_URI:$RELEASE_VERSION',
