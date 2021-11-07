@@ -2,7 +2,7 @@
 
 ## Require
 
-- The `CICredential` are registered in AWS Secrets Manager.
+### The `CICredential` are registered in AWS Secrets Manager.
 
 ```json
 {
@@ -12,4 +12,35 @@
 }
 ```
 
+### Create S3 Bucket
+
+```typescript
+const artifactBucket = new Bucket(this, `ArtifactBucket-${process.env.PROJECT_NAME}`, { bucketName: process.env.ARTIFACT_BUCKET! });
+const cacheBucket = new Bucket(this, `CacheBucket-${process.env.PROJECT_NAME}`, { bucketName: process.env.BUILD_CACHE_BUCKET! });
+```
+
+
+### Create ECR Repository
+
+#### Use GitHubSourceAction
+
+```typescript
+
+```
+
+#### Use EcrSourceAction
+
+```typescript
+```
+
 ## Usage
+
+### GitHubSourceAction
+
+```typescript
+```
+
+### EcrSourceAction
+
+```typescript
+```
