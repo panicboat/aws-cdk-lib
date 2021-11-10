@@ -17,6 +17,7 @@ interface Props {
     containerName: string
   }
   github: {
+    codestarArn?: string
     owner: string
     repository: string
     branch?: string
@@ -34,13 +35,13 @@ interface IBuild {
 export class Build extends Resource implements IBuild {
   projects: { build: codebuild.PipelineProject[]; release: codebuild.PipelineProject[]; bridge: codebuild.PipelineProject[]; } = { build: [], release: [], bridge: [] };
   public createResources(props: Props): void {
-    if (props.principal !== undefined) {
-      // for developments
+    if (props.github.branch !== undefined) {
       this.projects.build.push(this.createBuildProject(props));
-      this.projects.release.push(this.createReleaseProject(props));
     } else {
-      // for production
       this.projects.bridge.push(this.createBridgeProject(props));
+    }
+    if (props.principal !== undefined) {
+      this.projects.release.push(this.createReleaseProject(props));
     }
   }
 

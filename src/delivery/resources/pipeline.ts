@@ -8,7 +8,7 @@ import { Rule } from '@aws-cdk/aws-events';
 import { CodePipeline } from '@aws-cdk/aws-events-targets'
 import { PipelineProject } from '@aws-cdk/aws-codebuild';
 import { IAction } from '@aws-cdk/aws-codepipeline';
-import { CodeBuildAction, EcrSourceAction, EcsDeployAction, GitHubSourceAction, ManualApprovalAction } from '@aws-cdk/aws-codepipeline-actions';
+import { CodeBuildAction, CodeStarConnectionsSourceAction, EcrSourceAction, EcsDeployAction, GitHubSourceAction, ManualApprovalAction } from '@aws-cdk/aws-codepipeline-actions';
 import { Resource } from '../resource';
 import { IBaseService } from '@aws-cdk/aws-ecs';
 
@@ -16,6 +16,7 @@ interface Props {
   projectName: string
   credentialArn: string
   github: {
+    codestarArn?: string
     owner: string
     repository: string
     branch?: string
@@ -73,7 +74,12 @@ export class Pipeline extends Resource implements IPipeline {
       role: props.deploy.role,
     });
 
-    if (props.github.branch !== undefined && props.github.branch.length !== 0) {
+    if (0 < (props.github.codestarArn || '').length) {
+      pipeline.addStage({
+        stageName: 'SourceStage',
+        actions: [this.getCodeStarConnectionsSourceAction(props, { output: props.deploy.artifact.outputs.source })],
+      });
+    } else if (0 < (props.github.branch || '').length) {
       pipeline.addStage({
         stageName: 'SourceStage',
         actions: [this.getSourceActions(props, { output: props.deploy.artifact.outputs.source })],
@@ -157,6 +163,17 @@ export class Pipeline extends Resource implements IPipeline {
         actions: this.getActions(props.provisioning.release, { input: props.deploy.artifact.outputs.source, outputs: [] }),
       })
     }
+  }
+
+  private getCodeStarConnectionsSourceAction(props: Props, artifact: { output: codepipeline.Artifact }) {
+    return new CodeStarConnectionsSourceAction({
+      actionName: 'CodeStarConnectionsSourceAction',
+      connectionArn: props.github.codestarArn!,
+      owner: props.github.owner,
+      repo: props.github.repository,
+      branch: props.github.branch,
+      output: artifact.output,
+    });
   }
 
   private getSourceActions(props: Props, artifact: { output: codepipeline.Artifact }) {

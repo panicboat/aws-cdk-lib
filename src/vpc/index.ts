@@ -76,7 +76,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
       projectName: props.projectName,
       vpcId: vpc.vpcId,
       subnets: { private: subnet.private },
-      securityGroupIds: [ sg.cidrblock ],
+      securityGroupIds: [ sg.main ],
       endpoints: this.getValue(props.endpoints, [])
     });
   }

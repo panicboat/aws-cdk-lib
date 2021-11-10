@@ -27,6 +27,7 @@ interface Props {
     }
   }
   github: {
+    codestarArn?: string
     owner: string
     repository: string
     branch?: string
