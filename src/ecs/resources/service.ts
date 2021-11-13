@@ -1,3 +1,4 @@
+import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
 import { ISecurityGroup, ISubnet } from '@aws-cdk/aws-ec2';
 import { INamespace } from '@aws-cdk/aws-servicediscovery';
@@ -28,6 +29,7 @@ export class Service extends Resource implements IService {
       cloudMapOptions: {
         name: props.projectName,
         cloudMapNamespace: props.namespace,
+        dnsTtl: cdk.Duration.seconds(0),
       },
       deploymentController: {
         type: ecs.DeploymentControllerType.ECS
