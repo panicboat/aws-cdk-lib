@@ -177,10 +177,13 @@ export class Pipeline extends Resource implements IPipeline {
   }
 
   private getSourceActions(props: Props, artifact: { output: codepipeline.Artifact }) {
+    const secret = sm.Secret.fromSecretAttributes(this.scope, `CiCredentialArn-${props.projectName}`, {
+      secretCompleteArn: props.credentialArn
+    });
     return new GitHubSourceAction({
       actionName: 'GitHubSourceAction',
       owner: props.github.owner,
-      oauthToken: this.getGitHubAccessToken(props),
+      oauthToken: secret.secretValueFromJson('GitHubAccessToken'),
       repo: props.github.repository,
       branch: props.github.branch,
       output: artifact.output,
@@ -208,12 +211,5 @@ export class Pipeline extends Resource implements IPipeline {
       }));
     });
     return actions;
-  }
-
-  private getGitHubAccessToken(props: Props) {
-    const secret = sm.Secret.fromSecretAttributes(this.scope, `CiCredentialArn-${props.projectName}`, {
-      secretCompleteArn: props.credentialArn
-    });
-    return secret.secretValueFromJson('GitHubAccessToken')
   }
 }

@@ -61,7 +61,6 @@ export class Iam extends Resource implements IIam {
       policyName: `default-build-policy`,
       statements: [
         new iam.PolicyStatement({ effect: iam.Effect.ALLOW, actions: ['ecr:GetAuthorizationToken', 'ssm:GetParameters', 'secretsmanager:GetSecretValue'], resources: ['*'] }),
-        new iam.PolicyStatement({ effect: iam.Effect.ALLOW, actions: ['sts:AssumeRole'], resources: ['*'] }),
         new iam.PolicyStatement({ effect: iam.Effect.ALLOW, actions: ['ec2:CreateNetworkInterface', 'ec2:DeleteNetworkInterface', 'ec2:Describe*'], resources: ['*'] }),
         new iam.PolicyStatement({ effect: iam.Effect.ALLOW, actions: ['*'], resources: [`arn:aws:ec2:${this.stack.region}:${this.stack.account}:network-interface/*`] }),
       ]
