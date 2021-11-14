@@ -95,7 +95,7 @@ export class Pipeline extends Resource implements IPipeline {
           detail: {
             'action-type': ['PUSH'],
             'image-tag': [props.github.version],
-            'repository-name': [props.projectName],
+            'repository-name': [`${this.stack.account}.dkr.ecr.${this.stack.region}.amazonaws.com/${props.projectName}`],
             result: ['SUCCESS'],
           },
         },
