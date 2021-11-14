@@ -1,6 +1,6 @@
 # Network Foundation
 
-## Usage
+## Example
 
 ### Step1. Deploy with the primary account.
 

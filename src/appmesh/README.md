@@ -1,3 +1,3 @@
 # AppMesh Resources
 
-## Usage
+## Example

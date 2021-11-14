@@ -4,7 +4,8 @@
 
 - ECR Repository
 
-## Usage
+## Example
 
 ```typescript
+
 ```

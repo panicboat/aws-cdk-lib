@@ -19,28 +19,44 @@ const artifactBucket = new Bucket(this, `ArtifactBucket-${process.env.PROJECT_NA
 const cacheBucket = new Bucket(this, `CacheBucket-${process.env.PROJECT_NAME}`, { bucketName: process.env.BUILD_CACHE_BUCKET! });
 ```
 
-
 ### Create ECR Repository
 
 #### Use GitHubSourceAction
 
 ```typescript
-
+new ecr.Repository(this, id, { repositoryName: process.env.REPOSITORY_NAME! });
 ```
 
 #### Use EcrSourceAction
 
 ```typescript
+const repository = new ecr.Repository(this, id, { repositoryName: process.env.REPOSITORY_NAME! });
+const policy = new PolicyStatement({
+  effect: Effect.ALLOW,
+  principals: [new AccountPrincipal(process.env.SOURCE_ACCOUNT_ID!)],
+  actions: [
+    'ecr:GetDownloadUrlForLayer',
+    'ecr:BatchGetImage',
+    'ecr:BatchCheckLayerAvailability',
+    'ecr:PutImage',
+    'ecr:InitiateLayerUpload',
+    'ecr:UploadLayerPart',
+    'ecr:CompleteLayerUpload'
+  ],
+});
+repository.addToResourcePolicy(policy);
 ```
 
-## Usage
+## Example
 
 ### GitHubSourceAction
 
 ```typescript
+
 ```
 
 ### EcrSourceAction
 
 ```typescript
+
 ```
