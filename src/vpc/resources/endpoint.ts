@@ -2,7 +2,6 @@ import { CfnVPCEndpoint } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
 interface Props {
-  projectName: string;
   vpcId: string;
   subnets: {
     private: string[],
@@ -11,10 +10,11 @@ interface Props {
   endpoints: { serviceName: string; privateDnsEnabled: boolean, vpcEndpointType: string }[];
 }
 interface IEndpoint {
-  createResources(props: Props): void;
+  createVpcEndpoint(props: Props): void;
 }
 export class Endpoint extends Resource implements IEndpoint {
-  public createResources(props: Props): void {
+
+  public createVpcEndpoint(props: Props) {
     const endpoints = props.endpoints.concat([
       { serviceName: 's3',      privateDnsEnabled: false, vpcEndpointType: 'Gateway' },
     ]);

@@ -29,59 +29,48 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
-    let principal = this.getValue(props.principal, {});
-    let primary = this.getValue(principal.primary, {});
-    let secondary = this.getValue(principal.secondary, {});
+    const ssmRole = new Iam(this).createSSMManagedInstanceRole({ projectName: props.projectName, });
 
-    const iam = new Iam(this);
-    iam.createResources({ projectName: props.projectName, });
-
-    const vpc = new Vpc(this);
-    vpc.createResources({ projectName: props.projectName, cidrBlock: props.cidrBlock, });
-
-    const subnet = new Subnet(this);
-    subnet.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
+    const vpcId = new Vpc(this).createVPC({ projectName: props.projectName, cidrBlock: props.cidrBlock, });
+    const subnets = new Subnet(this).createSubnets({ projectName: props.projectName, vpcId: vpcId, cidrBlock: props.cidrBlock });
 
     const gateway = new Gateway(this);
-    gateway.createResources({
-      projectName: props.projectName,
-      vpcId: vpc.vpcId,
-      subnets: { public: subnet.public, private: subnet.private },
-      principal: {
-        primary: { transitGatewayId: this.getValue(primary.transitGatewayId, '') },
-        secondary: { accountIds: this.getValue(secondary.accountIds, []) }
-      },
-    });
+    const igwId = gateway.createInternetGateway({ vpcId: vpcId });
+    let ngwIds: string[] = [];
+    if (props.principal?.primary?.transitGatewayId === undefined) {
+      // For primary account
+      ngwIds = gateway.createNatGateway({ subnets: subnets });
+    }
+    let tgwId: string = '';
+    let attachement!: cdk.CfnResource;
+    if (props.principal?.secondary?.accountIds && props.principal?.secondary?.accountIds.length !== 0) {
+      // For primary account
+      tgwId = gateway.createTransitGateway({ projectName: props.projectName, principal: { secondary: { accountIds: props.principal?.secondary?.accountIds } } });
+      attachement = gateway.attachTransitGateway({ projectName: props.projectName, vpcId: vpcId, subnets: subnets, transitGatewayId: tgwId });
+    }
+    if (props.principal?.primary?.transitGatewayId && props.principal?.primary?.transitGatewayId.length !== 0) {
+      // For secondary accounts
+      attachement = gateway.attachTransitGateway({ projectName: props.projectName, vpcId: vpcId, subnets: subnets, transitGatewayId: props.principal?.primary?.transitGatewayId });
+    }
 
     const routetable = new RouteTable(this);
-    routetable.createResources({
-      projectName: props.projectName,
-      vpcId: vpc.vpcId,
-      subnets: { public: subnet.public, private: subnet.private },
-      internetGatewayId: gateway.internetGatewayId,
-      natGatewayIds: gateway.natGatewayIds,
-      transitGatewayId: gateway.transitGatewayId,
-      attachment: gateway.attachment,
-      principal: {
-        primary: { transitGatewayId: this.getValue(primary.transitGatewayId, '') },
-        secondary: { cidrBlock: this.getValue(secondary.cidrBlock, []), tgwAttachmentIds: this.getValue(secondary.tgwAttachmentIds, []) }
-      },
+    routetable.createVpcRoutePublic({
+      vpcId: vpcId, internetGatewayId: igwId, subnets: subnets, principal: { primary: { transitGatewayId: tgwId }, secondary: { cidrBlock: (props.principal?.secondary?.cidrBlock || []) } }
+    }).forEach(route => {
+      if (attachement !== undefined) { route.addDependsOn(attachement) }
     });
+    routetable.createVpcRoutePrivate({
+      vpcId: vpcId, subnets: subnets, principal: { primary: { natGatewayIds: ngwIds, transitGatewayId: (props.principal?.primary?.transitGatewayId || '') } }
+    }).forEach(route => {
+      if (attachement !== undefined) { route.addDependsOn(attachement) }
+    });
+    routetable.createTransitGatewayRoute(attachement, { principal: { primary: { transitGatewayId: tgwId }, secondary: { transitGatewayAttachmentIds: (props.principal?.secondary?.tgwAttachmentIds || []) } } });
 
     const sg = new SecurityGroup(this);
-    sg.createResources({ projectName: props.projectName, vpcId: vpc.vpcId, cidrBlock: props.cidrBlock });
+    // TODO: I don't like it. Please think of something better.
+    const sgMain = sg.createMain({ vpcId: vpcId, cidrBlock: '10.0.0.0/8' });
 
     const endpoint = new Endpoint(this);
-    endpoint.createResources({
-      projectName: props.projectName,
-      vpcId: vpc.vpcId,
-      subnets: { private: subnet.private },
-      securityGroupIds: [ sg.main ],
-      endpoints: this.getValue(props.endpoints, [])
-    });
-  }
-
-  private getValue(inputValue: any, defaultValue: any): any {
-    return inputValue || defaultValue;
+    endpoint.createVpcEndpoint({ vpcId: vpcId, subnets: { private: subnets.private }, securityGroupIds: [ sgMain ], endpoints: (props.endpoints || []) });
   }
 }

@@ -12,8 +12,6 @@ export abstract class Resource {
     this.stack = cdk.Stack.of(this.scope);
   }
 
-  public abstract createResources(props: Props): void;
-
   protected getAvailabilityZoneNames(): string[] {
     return ['A', 'C', 'D'];
   }
