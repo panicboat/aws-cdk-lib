@@ -2,12 +2,12 @@ import { CfnVPCEndpoint } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
 interface Props {
-  vpcId: string;
+  vpcId: string
   subnets: {
-    private: string[],
+    private: string[]
   },
-  securityGroupIds: string[];
-  endpoints: { serviceName: string; privateDnsEnabled: boolean, vpcEndpointType: string }[];
+  securityGroupIds: string[]
+  endpoints: { serviceName: string, privateDnsEnabled: boolean, vpcEndpointType: string }[]
 }
 interface IEndpoint {
   createVpcEndpoint(props: Props): void;

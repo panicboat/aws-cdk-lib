@@ -8,17 +8,17 @@ import { RouteTable } from './resources/routetable';
 import { SecurityGroup } from './resources/securitygroup';
 
 interface Props {
-  projectName: string;
-  cidrBlock: string;
+  projectName: string
+  cidrBlock: string
   principal?: {
     primary?: {
-      accountId?: string;
-      transitGatewayId?: string;
+      accountId?: string
+      transitGatewayId?: string
     };
     secondary?: {
-      accountIds?: string[];
-      cidrBlock?: string[];
-      tgwAttachmentIds?: string[];
+      accountIds?: string[]
+      cidrBlock?: string[]
+      tgwAttachmentIds?: string[]
     };
   };
   endpoints?: { serviceName: string; privateDnsEnabled: boolean, vpcEndpointType: string }[];
@@ -29,7 +29,8 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
-    const ssmRole = new Iam(this).createSSMManagedInstanceRole({ projectName: props.projectName, });
+    const iam = new Iam(this);
+    iam.createSSMManagedInstanceRole({ projectName: props.projectName, });
 
     const vpcId = new Vpc(this).createVPC({ projectName: props.projectName, cidrBlock: props.cidrBlock, });
     const subnets = new Subnet(this).createSubnets({ projectName: props.projectName, vpcId: vpcId, cidrBlock: props.cidrBlock });
@@ -64,7 +65,10 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     }).forEach(route => {
       if (attachement !== undefined) { route.addDependsOn(attachement) }
     });
-    routetable.createTransitGatewayRoute(attachement, { principal: { primary: { transitGatewayId: tgwId }, secondary: { transitGatewayAttachmentIds: (props.principal?.secondary?.tgwAttachmentIds || []) } } });
+    if (tgwId.length !== 0) {
+      // For primary account
+      routetable.createTransitGatewayRoute(attachement, { principal: { primary: { transitGatewayId: tgwId }, secondary: { transitGatewayAttachmentIds: (props.principal?.secondary?.tgwAttachmentIds || []) } } });
+    }
 
     const sg = new SecurityGroup(this);
     // TODO: I don't like it. Please think of something better.

@@ -3,9 +3,9 @@ import { CfnSubnet, SubnetType } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
 interface Props {
-  projectName: string;
-  vpcId: string;
-  cidrBlock: string;
+  projectName: string
+  vpcId: string
+  cidrBlock: string
 }
 interface ISubnet {
   createSubnets(props: Props): {

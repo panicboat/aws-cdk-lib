@@ -3,8 +3,8 @@ import { CfnVPC } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
 
 interface Props {
-  projectName: string;
-  cidrBlock: string;
+  projectName: string
+  cidrBlock: string
 }
 interface IVpc {
   createVPC(props: Props): void;
