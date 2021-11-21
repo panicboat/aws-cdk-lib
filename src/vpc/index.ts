@@ -14,14 +14,18 @@ interface Props {
     primary?: {
       accountId?: string
       transitGatewayId?: string
-    };
+    }
     secondary?: {
       accountIds?: string[]
       cidrBlock?: string[]
       tgwAttachmentIds?: string[]
-    };
-  };
-  endpoints?: { serviceName: string; privateDnsEnabled: boolean, vpcEndpointType: string }[];
+    }
+  }
+  endpoints?: {
+    serviceName: string
+    privateDnsEnabled: boolean
+    vpcEndpointType: string
+  }[]
 }
 interface IVpcResources {
 }

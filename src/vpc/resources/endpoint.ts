@@ -5,7 +5,7 @@ interface Props {
   vpcId: string
   subnets: {
     private: string[]
-  },
+  }
   securityGroupIds: string[]
   endpoints: { serviceName: string, privateDnsEnabled: boolean, vpcEndpointType: string }[]
 }
