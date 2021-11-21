@@ -75,7 +75,6 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     }
 
     const sg = new SecurityGroup(this);
-    // TODO: I don't like it. Please think of something better.
     const sgMain = sg.createMain({ vpcId: vpcId, cidrBlock: '10.0.0.0/8' });
 
     const endpoint = new Endpoint(this);
