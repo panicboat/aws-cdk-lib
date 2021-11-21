@@ -9,14 +9,14 @@ interface Props {
   projectName: string;
   serviceName: string;
   mesh: appmesh.IMesh;
-  vRouterListeners: appmesh.VirtualRouterListener[];
+  listeners: appmesh.VirtualRouterListener[];
   route: {
     grpc?: { name: string, match: appmesh.GrpcRouteMatch }[];
     http?: { name: string, match: appmesh.HttpRouteMatch }[];
     http2?: { name: string, match: appmesh.HttpRouteMatch }[];
     tcp?: { name: string }[];
   }
-  nodes: { name: string, service?: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[];
+  nodes: { name: string, service?: IService, listeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[];
 }
 interface IMeshResources {
 }
@@ -24,25 +24,17 @@ export class MeshResources extends cdk.Construct implements IMeshResources {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
-    let grpcRoute = this.getValue(props.route.grpc, []);
-    let httpRoute = this.getValue(props.route.http, []);
-    let http2Route = this.getValue(props.route.http2, []);
-    let tcpRoute = this.getValue(props.route.tcp, []);
+    const vNode = new VirtualNode(this);
+    const targets = vNode.createNode({ mesh: props.mesh, nodes: props.nodes });
 
-    const node = new VirtualNode(this);
-    node.createResources({ projectName: props.projectName, mesh: props.mesh, nodes: props.nodes });
-
-    const router = new VirtualRouter(this);
-    router.createResources({
-      projectName: props.projectName, mesh: props.mesh, vRouterListeners: props.vRouterListeners, weightedTargets: node.weightedTargets,
-      grpcRoute: grpcRoute, httpRoute: httpRoute, http2Route: http2Route, tcpRoute: tcpRoute
-    });
+    const vRouter = new VirtualRouter(this);
+    const router = vRouter.createRouter({ projectName: props.projectName, mesh: props.mesh, listeners: props.listeners });
+    vRouter.addGrpcRoute({ router: router, routes: (props.route.grpc || []), targets: targets });
+    vRouter.addHttpRoute({ router: router, routes: (props.route.http || []), targets: targets });
+    vRouter.addHttp2Route({ router: router, routes: (props.route.http2 || []), targets: targets });
+    vRouter.addTcpRoute({ router: router, routes: (props.route.tcp || []), targets: targets });
 
     const service = new VirtualService(this);
-    service.createResources({ projectName: props.projectName, serviceName: props.serviceName, router: router.router });
-  }
-
-  private getValue(inputValue: any, defaultValue: any): any {
-    return inputValue !== undefined ? inputValue : defaultValue;
+    service.createService({ projectName: props.projectName, serviceName: props.serviceName, router: router });
   }
 }

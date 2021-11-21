@@ -11,6 +11,4 @@ export abstract class Resource {
       this.scope = scope;
       this.stack = cdk.Stack.of(this.scope);
     }
-
-    public abstract createResources(props: Props): void;
 }

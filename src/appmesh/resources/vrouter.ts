@@ -1,67 +1,67 @@
 import * as appmesh from '@aws-cdk/aws-appmesh';
 import { Resource } from '../resource';
 
-interface Props {
-  projectName: string;
-  mesh: appmesh.IMesh;
-  vRouterListeners: appmesh.VirtualRouterListener[];
-  weightedTargets: appmesh.WeightedTarget[];
-  grpcRoute: { name: string, match: appmesh.GrpcRouteMatch }[];
-  httpRoute: { name: string, match: appmesh.HttpRouteMatch }[];
-  http2Route: { name: string, match: appmesh.HttpRouteMatch }[];
-  tcpRoute: { name: string }[];
-}
 interface IVirtualRouter {
-  readonly router: appmesh.IVirtualRouter;
-  createResources(props: Props): void;
+  createRouter(props: { projectName: string, mesh: appmesh.IMesh, listeners: appmesh.VirtualRouterListener[] }): appmesh.IVirtualRouter;
+  addGrpcRoute(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.GrpcRouteMatch }[], targets: appmesh.WeightedTarget[] }): void;
+  addHttpRoute(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.HttpRouteMatch }[], targets: appmesh.WeightedTarget[] }): void;
+  addHttp2Route(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.HttpRouteMatch }[], targets: appmesh.WeightedTarget[] }): void;
+  addTcpRoute(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.HttpRouteMatch }[], targets: appmesh.WeightedTarget[] }): void;
 }
 export class VirtualRouter extends Resource implements IVirtualRouter {
-  public router!: appmesh.IVirtualRouter;
-  public createResources(props: Props): void {
+
+  public createRouter(props: { projectName: string, mesh: appmesh.IMesh, listeners: appmesh.VirtualRouterListener[] }) {
     const router = props.mesh.addVirtualRouter(`VirtualRouter-${props.projectName}`, {
-      listeners: props.vRouterListeners,
+      listeners: props.listeners,
       virtualRouterName: props.projectName
     });
+    return router;
+  }
 
-    props.grpcRoute.forEach(grpcRoute => {
-      router.addRoute(`GrpcRoute-${grpcRoute.name}`, {
-        routeName: grpcRoute.name,
+  public addGrpcRoute(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.GrpcRouteMatch }[], targets: appmesh.WeightedTarget[] }) {
+    props.routes.forEach(route => {
+      props.router.addRoute(`GrpcRoute-${route.name}`, {
+        routeName: route.name,
         routeSpec: appmesh.RouteSpec.grpc({
-          weightedTargets: props.weightedTargets,
-          match: grpcRoute.match
+          weightedTargets: props.targets,
+          match: route.match
         })
       });
     });
+  }
 
-    props.httpRoute.forEach(httpRoute => {
-      router.addRoute(`HttpRoute-${httpRoute.name}`, {
-        routeName: httpRoute.name,
+  public addHttpRoute(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.HttpRouteMatch }[], targets: appmesh.WeightedTarget[] }) {
+    props.routes.forEach(route => {
+      props.router.addRoute(`HttpRoute-${route.name}`, {
+        routeName: route.name,
         routeSpec: appmesh.RouteSpec.http({
-          weightedTargets: props.weightedTargets,
-          match: httpRoute.match
+          weightedTargets: props.targets,
+          match: route.match
         })
       });
     });
+  }
 
-    props.http2Route.forEach(http2Route => {
-      router.addRoute(`Http2Route-${http2Route.name}`, {
-        routeName: http2Route.name,
+  public addHttp2Route(props: { router: appmesh.VirtualRouter, routes: { name: string, match: appmesh.HttpRouteMatch }[], targets: appmesh.WeightedTarget[] }) {
+    props.routes.forEach(route => {
+      props.router.addRoute(`Http2Route-${route.name}`, {
+        routeName: route.name,
         routeSpec: appmesh.RouteSpec.http2({
-          weightedTargets: props.weightedTargets,
-          match: http2Route.match
+          weightedTargets: props.targets,
+          match: route.match
         })
       });
     });
+  }
 
-    props.tcpRoute.forEach(tcpRoute => {
-      router.addRoute(`TcpRoute-${tcpRoute.name}`, {
-        routeName: tcpRoute.name,
+  public addTcpRoute(props: { router: appmesh.VirtualRouter, routes: { name: string }[], targets: appmesh.WeightedTarget[] }) {
+    props.routes.forEach(route => {
+      props.router.addRoute(`TcpRoute-${route.name}`, {
+        routeName: route.name,
         routeSpec: appmesh.RouteSpec.tcp({
-          weightedTargets: props.weightedTargets,
+          weightedTargets: props.targets,
         })
       });
     });
-
-    this.router = router;
   }
 }
