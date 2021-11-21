@@ -33,8 +33,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
-    const iam = new Iam(this);
-    iam.createSSMManagedInstanceRole({ projectName: props.projectName, });
+    const iam = new Iam(this).createSSMManagedInstanceRole({ projectName: props.projectName, });
 
     const vpcId = new Vpc(this).createVPC({ projectName: props.projectName, cidrBlock: props.cidrBlock, });
     const subnets = new Subnet(this).createSubnets({ projectName: props.projectName, vpcId: vpcId, cidrBlock: props.cidrBlock });
