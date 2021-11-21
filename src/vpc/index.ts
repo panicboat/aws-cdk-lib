@@ -73,8 +73,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
       routetable.createTransitGatewayRoute(attachement, { principal: { primary: { transitGatewayId: tgwId }, secondary: { transitGatewayAttachmentIds: (props.principal?.secondary?.tgwAttachmentIds || []) } } });
     }
 
-    const sg = new SecurityGroup(this);
-    const sgMain = sg.createMain({ vpcId: vpcId, cidrBlock: '10.0.0.0/8' });
+    const sgMain = new SecurityGroup(this).createMain({ vpcId: vpcId, cidrBlock: '10.0.0.0/8' });
 
     const endpoint = new Endpoint(this);
     endpoint.createVpcEndpoint({ vpcId: vpcId, subnets: { private: subnets.private }, securityGroupIds: [ sgMain ], endpoints: (props.endpoints || []) });
