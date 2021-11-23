@@ -1,28 +1,15 @@
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
-import { ILogGroup } from '@aws-cdk/aws-logs';
-import { IRole } from '@aws-cdk/aws-iam';
 import { Resource } from '../resource';
+import { TaskDefinitionProps } from '../props';
 
-interface Props {
-  projectName: string;
-  cpu: number;
-  memoryLimitMiB: number;
-  appPorts: number[];
-  virtualNodeName: string;
-  taskRole: IRole;
-  executionRole: IRole;
-  logGroup: ILogGroup;
-  containers: ecs.ContainerDefinitionOptions[];
-}
 interface ITaskDefinition {
-  readonly taskDefinition: ecs.FargateTaskDefinition;
-  createResources(props: Props): void;
+  createTaskDefinition(props: TaskDefinitionProps): ecs.FargateTaskDefinition;
 }
 export class TaskDefinition extends Resource implements ITaskDefinition {
-  public taskDefinition!: ecs.FargateTaskDefinition;
-  public createResources(props: Props): void {
-    this.taskDefinition = new ecs.FargateTaskDefinition(this.scope, `TaskDefinition-${props.projectName}`, {
+
+  public createTaskDefinition(props: TaskDefinitionProps) {
+    const taskDefinition = new ecs.FargateTaskDefinition(this.scope, `TaskDefinition-${props.projectName}`, {
       family: props.projectName,
       proxyConfiguration: new ecs.AppMeshProxyConfiguration({
         containerName: 'envoy',
@@ -39,7 +26,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       taskRole: props.taskRole,
       executionRole: props.executionRole,
     });
-    this.taskDefinition.addContainer('envoy', {
+    taskDefinition.addContainer('envoy', {
       image: ecs.ContainerImage.fromRegistry('public.ecr.aws/appmesh/aws-appmesh-envoy:v1.19.1.0-prod'),
       containerName: 'envoy',
       user: '1337',
@@ -71,7 +58,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
         retries: 3,
       },
     });
-    this.taskDefinition.addContainer('xray-daemon', {
+    taskDefinition.addContainer('xray-daemon', {
       containerName: 'xray-daemon',
       image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon:latest'),
       user: '1337',
@@ -88,14 +75,15 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
         },
       }),
     });
-    this.taskDefinition.addFirelensLogRouter('fluent-bit', {
+    taskDefinition.addFirelensLogRouter('fluent-bit', {
       firelensConfig: {
         type: ecs.FirelensLogRouterType.FLUENTBIT,
       },
       image: ecs.ContainerImage.fromRegistry('amazon/aws-for-fluent-bit:latest')
     });
     props.containers.forEach(container => {
-      this.taskDefinition.addContainer(container.containerName!, container);
+      taskDefinition.addContainer(container.containerName!, container);
     });
+    return taskDefinition;
   }
 }
