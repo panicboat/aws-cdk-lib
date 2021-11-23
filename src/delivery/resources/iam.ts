@@ -1,32 +1,15 @@
 import * as iam from '@aws-cdk/aws-iam';
+import { BuildRoleProps, PipelineRoleProps } from '../props';
 import { Resource } from '../resource';
 
-interface Props {
-  projectName: string
-  pipelineRole: {
-    managedPolicies: iam.IManagedPolicy[]
-    inlinePolicies: iam.Policy[]
-  }
-  buildRole: {
-    managedPolicies: iam.IManagedPolicy[]
-    inlinePolicies: iam.Policy[]
-  }
-}
 interface IIam {
-  readonly pipelineRole: iam.IRole;
-  readonly buildRole: iam.IRole;
-  createResources(props: Props): void;
+  createPipelineRole(props: PipelineRoleProps): iam.Role;
+  createBuildRole(props: BuildRoleProps): iam.Role;
 }
 export class Iam extends Resource implements IIam {
-  public pipelineRole!: iam.IRole;
-  public buildRole!: iam.IRole;
-  public createResources(props: Props): void {
-    this.createPipelineRole(props);
-    this.createBuildRole(props);
-  }
 
-  private createPipelineRole(props: Props): void {
-    this.pipelineRole = new iam.Role(this.scope, `PipelineRole-${props.projectName}`, {
+  public createPipelineRole(props: PipelineRoleProps) {
+    const pipelineRole = new iam.Role(this.scope, `PipelineRole-${props.projectName}`, {
       roleName: `PipelineRole-${props.projectName}`,
       assumedBy: new iam.ServicePrincipal('codepipeline.amazonaws.com'),
       managedPolicies: [
@@ -36,15 +19,16 @@ export class Iam extends Resource implements IIam {
         iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchFullAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonECS_FullAccess'),
-      ].concat(props.pipelineRole.managedPolicies),
+      ].concat(props.managedPolicies),
     });
-    props.pipelineRole.inlinePolicies.forEach(inlinePolicy => {
-      this.pipelineRole.attachInlinePolicy(inlinePolicy);
+    props.inlinePolicies.forEach(inlinePolicy => {
+      pipelineRole.attachInlinePolicy(inlinePolicy);
     });
+    return pipelineRole;
   }
 
-  private createBuildRole(props: Props): void {
-    this.buildRole = new iam.Role(this.scope, `CodeBuildRole-${props.projectName}`, {
+  public createBuildRole(props: BuildRoleProps) {
+    const buildRole = new iam.Role(this.scope, `CodeBuildRole-${props.projectName}`, {
       roleName: `CodeBuildRole-${props.projectName}`,
       assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
       managedPolicies: [
@@ -52,10 +36,10 @@ export class Iam extends Resource implements IIam {
         iam.ManagedPolicy.fromAwsManagedPolicyName('AWSCodeBuildAdminAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
         iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess'),
-      ].concat(props.buildRole.managedPolicies),
+      ].concat(props.managedPolicies),
     });
-    props.buildRole.inlinePolicies.forEach(inlinePolicy => {
-      this.buildRole.attachInlinePolicy(inlinePolicy);
+    props.inlinePolicies.forEach(inlinePolicy => {
+      buildRole.attachInlinePolicy(inlinePolicy);
     });
     const policy = new iam.Policy(this.scope, `CodeBuildRole-DefaultPoliciy-${props.projectName}`, {
       policyName: `default-build-policy`,
@@ -65,6 +49,7 @@ export class Iam extends Resource implements IIam {
         new iam.PolicyStatement({ effect: iam.Effect.ALLOW, actions: ['*'], resources: [`arn:aws:ec2:${this.stack.region}:${this.stack.account}:network-interface/*`] }),
       ]
     });
-    this.buildRole.attachInlinePolicy(policy);
+    buildRole.attachInlinePolicy(policy);
+    return buildRole;
   }
 }

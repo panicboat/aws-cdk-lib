@@ -1,51 +1,16 @@
 import * as cdk from '@aws-cdk/core';
 import * as codebuild from '@aws-cdk/aws-codebuild';
-import { ISecurityGroup, IVpc } from '@aws-cdk/aws-ec2';
-import { IRole } from '@aws-cdk/aws-iam';
-import { IBucket } from '@aws-cdk/aws-s3';
 import { Resource } from '../resource';
+import { BridgeProject, BuildProjectProps, ReleaseProjectProps } from '../props';
 
-interface Props {
-  projectName: string
-  vpc: IVpc
-  securityGroups: ISecurityGroup[]
-  credentialArn: string
-  build: {
-    buildDir: string
-    buildRole: IRole
-    cacheBucket: IBucket
-    containerName: string
-  }
-  github: {
-    codestarArn?: string
-    owner: string
-    repository: string
-    branch?: string
-    version: string
-  }
-  principal?: {
-    account: string
-    repository: string
-  }
-}
 interface IBuild {
-  projects: { build: codebuild.PipelineProject[], release: codebuild.PipelineProject[], bridge: codebuild.PipelineProject[] };
-  createResources(props: Props): void;
+  createBuildProject(props: BuildProjectProps): codebuild.PipelineProject
+  createReleaseProject(props: ReleaseProjectProps): codebuild.PipelineProject
+  createBridgeProject(props: BridgeProject): codebuild.PipelineProject
 }
 export class Build extends Resource implements IBuild {
-  projects: { build: codebuild.PipelineProject[]; release: codebuild.PipelineProject[]; bridge: codebuild.PipelineProject[]; } = { build: [], release: [], bridge: [] };
-  public createResources(props: Props): void {
-    if (props.github.branch !== undefined) {
-      this.projects.build.push(this.createBuildProject(props));
-    } else {
-      this.projects.bridge.push(this.createBridgeProject(props));
-    }
-    if (props.principal !== undefined) {
-      this.projects.release.push(this.createReleaseProject(props));
-    }
-  }
 
-  private createBuildProject(props: Props): codebuild.PipelineProject {
+  public createBuildProject(props: BuildProjectProps) {
     return new codebuild.PipelineProject(this.scope, `BuildProject-${props.projectName}`, {
       projectName: `${props.projectName}-build`,
       cache: codebuild.Cache.bucket(props.build.cacheBucket, { prefix: `${props.projectName}-build` }),
@@ -119,7 +84,7 @@ export class Build extends Resource implements IBuild {
     });
   }
 
-  private createReleaseProject(props: Props): codebuild.PipelineProject  {
+  public createReleaseProject(props: ReleaseProjectProps) {
     return new codebuild.PipelineProject(this.scope, `ReleaseProject-${props.projectName}`, {
       projectName: `${props.projectName}-release`,
       cache: codebuild.Cache.bucket(props.build.cacheBucket, { prefix: `${props.projectName}-release` }),
@@ -141,10 +106,10 @@ export class Build extends Resource implements IBuild {
             value: props.github.version,
           },
           'RELEASE_ACCOUNT_ID': {
-            value: props.principal!.account,
+            value: props.principal.account,
           },
           'RELEASE_REPOSITORY_URI': {
-            value: props.principal!.repository,
+            value: props.principal.repository,
           },
         },
       },
@@ -212,7 +177,7 @@ export class Build extends Resource implements IBuild {
     });
   }
 
-  private createBridgeProject(props: Props): codebuild.PipelineProject  {
+  public createBridgeProject(props: BridgeProject) {
     return new codebuild.PipelineProject(this.scope, `BridgeProject-${props.projectName}`, {
       projectName: `${props.projectName}-bridge`,
       cache: codebuild.Cache.bucket(props.build.cacheBucket, { prefix: `${props.projectName}-bridge` }),
