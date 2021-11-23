@@ -40,7 +40,7 @@ export class WebResource extends cdk.Construct implements IWebResource {
     if (props.listener?.listenerArn) {
       const listener = new Listener(this);
       const tg = listener.createTargetGroup({
-        projectName: props.projectName, vpc: props.ecs.cluster.vpc, targets: [ecsService], port: props.ecs.appPort, healthCheckPath: props.listener.healthCheckPath
+        projectName: props.projectName, vpc: props.ecs.cluster.vpc, targets: [ecsService], port: props.listener.appPort, healthCheckPath: props.listener.healthCheckPath
       });
       listener.createListenerRule({
         projectName: props.projectName, listenerArn: props.listener.listenerArn, priority: props.listener.priority, targetGroups: [tg]

@@ -14,7 +14,6 @@ export interface Props {
   ecs: {
     cpu: number
     memoryLimitMiB: number
-    appPort: number
     containers: ContainerDefinitionOptions[]
     logGroup: LogGroup
     cluster: ICluster
@@ -40,6 +39,7 @@ export interface Props {
   listener?: {
     listenerArn: string
     healthCheckPath: string
+    appPort: number
     priority: number
   }
 }
