@@ -1,22 +1,14 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 import { ISecurityGroup, ISubnet } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
+import { FargateServiceProps } from '../props';
 
-interface Props {
-  projectName: string;
-  cluster: ecs.ICluster;
-  taskDefinition: ecs.TaskDefinition;
-  desiredCount: number;
-  securityGroups: ISecurityGroup[];
-  subnets: ISubnet[];
-}
 interface IService {
-  readonly service: ecs.FargateService;
-  createResources(props: Props): void;
+  createFargateService(props: FargateServiceProps): ecs.FargateService
 }
 export class Service extends Resource implements IService {
-  public service!: ecs.FargateService;
-  public createResources(props: Props): void {
+
+  public createFargateService(props: FargateServiceProps) {
     const service = new ecs.FargateService(this.scope, `Service-${props.projectName}`, {
       cluster: props.cluster,
       taskDefinition: props.taskDefinition,
@@ -35,6 +27,6 @@ export class Service extends Resource implements IService {
         subnets: props.subnets
       },
     });
-    this.service = service;
+    return service;
   }
 }

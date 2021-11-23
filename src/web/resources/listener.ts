@@ -1,29 +1,16 @@
 import * as cdk from '@aws-cdk/core';
 import * as alb from '@aws-cdk/aws-elasticloadbalancingv2';
-import { IVpc } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
+import { ListenerProps, TargetGroupProps } from '../props';
 
-interface Props {
-  projectName: string;
-  vpc: IVpc;
-  targets: alb.IApplicationLoadBalancerTarget[];
-  listenerArn: string;
-  port: number;
-  priority: number;
-  healthCheckPath: string;
-}
 interface IListener {
-  createResources(props: Props): void;
+  createTargetGroup(props: TargetGroupProps): alb.ApplicationTargetGroup;
+  createListenerRule(props: ListenerProps): alb.ApplicationListenerRule;
 }
 export class Listener extends Resource implements IListener {
 
-  public createResources(props: Props): void {
-    const targetGroup = this.createTargetGroup(this.scope, props)
-    this.createListenerRule(this.scope, props, [targetGroup]);
-  }
-
-  private createTargetGroup(scope: cdk.Construct, props: Props): alb.ApplicationTargetGroup {
-    return new alb.ApplicationTargetGroup(scope, `TargetGroup-${props.projectName}`, {
+  public createTargetGroup(props: TargetGroupProps) {
+    return new alb.ApplicationTargetGroup(this.scope, `TargetGroup-${props.projectName}`, {
       targetGroupName: props.projectName,
       targetType: alb.TargetType.IP,
       targets: props.targets,
@@ -44,13 +31,13 @@ export class Listener extends Resource implements IListener {
     });
   }
 
-  private createListenerRule(scope: cdk.Construct, props: Props, targetGroups: alb.IApplicationTargetGroup[]) {
-    return new alb.ApplicationListenerRule(scope, `ListenerRule-${props.projectName}`, {
-      action: alb.ListenerAction.forward(targetGroups),
+  public createListenerRule(props: ListenerProps) {
+    return new alb.ApplicationListenerRule(this.scope, `ListenerRule-${props.projectName}`, {
+      action: alb.ListenerAction.forward(props.targetGroups),
       conditions: [
         alb.ListenerCondition.pathPatterns(['/maniax-touch/','/maniax-touch','/_nuxt*']),
       ],
-      listener: alb.ApplicationListener.fromLookup(scope, `Listener-${props.projectName}`, { listenerArn: props.listenerArn }),
+      listener: alb.ApplicationListener.fromLookup(this.scope, `Listener-${props.projectName}`, { listenerArn: props.listenerArn }),
       priority: props.priority,
     });
   }
