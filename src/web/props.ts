@@ -37,7 +37,7 @@ export interface Props {
       target?: number
     }
   }
-  listener: {
+  listener?: {
     listenerArn: string
     healthCheckPath: string
     priority: number

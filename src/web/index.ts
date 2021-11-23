@@ -37,13 +37,15 @@ export class WebResource extends cdk.Construct implements IWebResource {
       desiredCount: props.autoScale.minCapacity, securityGroups: props.vpc.securityGroups, subnets: props.vpc.subnets,
     });
 
-    const listener = new Listener(this);
-    const tg = listener.createTargetGroup({
-      projectName: props.projectName, vpc: props.ecs.cluster.vpc, targets: [ecsService], port: props.ecs.appPort, healthCheckPath: props.listener.healthCheckPath
-    });
-    listener.createListenerRule({
-      projectName: props.projectName, listenerArn: props.listener.listenerArn, priority: props.listener.priority, targetGroups: [tg]
-    });
+    if (props.listener?.listenerArn) {
+      const listener = new Listener(this);
+      const tg = listener.createTargetGroup({
+        projectName: props.projectName, vpc: props.ecs.cluster.vpc, targets: [ecsService], port: props.ecs.appPort, healthCheckPath: props.listener.healthCheckPath
+      });
+      listener.createListenerRule({
+        projectName: props.projectName, listenerArn: props.listener.listenerArn, priority: props.listener.priority, targetGroups: [tg]
+      });
+    }
 
     const autoscale = new AutoScale(this);
     const capacity = autoscale.createCapacity({ service: ecsService, minCapacity: props.autoScale.minCapacity, maxCapacity: props.autoScale.maxCapacity });
