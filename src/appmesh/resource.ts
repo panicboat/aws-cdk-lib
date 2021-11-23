@@ -1,8 +1,5 @@
 import * as cdk from '@aws-cdk/core';
 
-interface Props {
-  projectName: string;
-}
 export abstract class Resource {
     protected scope: cdk.Construct;
     protected stack: cdk.Stack;

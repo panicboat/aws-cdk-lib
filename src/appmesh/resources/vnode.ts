@@ -1,18 +1,13 @@
 import * as appmesh from '@aws-cdk/aws-appmesh';
-import { IService } from '@aws-cdk/aws-servicediscovery';
+import { VirtualNodeProps } from '../props';
 import { Resource } from '../resource';
 
-interface Props {
-  projectName: string;
-  mesh: appmesh.IMesh;
-  nodes: { name: string, service?: IService, vNodeListeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[];
-}
 interface IVirtualNode {
-  createNode(props: { mesh: appmesh.IMesh, nodes: { name: string, service?: IService, listeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[] }): appmesh.WeightedTarget[];
+  createNode(props: VirtualNodeProps): appmesh.WeightedTarget[];
 }
 export class VirtualNode extends Resource implements IVirtualNode {
 
-  public createNode(props: { mesh: appmesh.IMesh, nodes: { name: string, service?: IService, listeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[] }) {
+  public createNode(props: VirtualNodeProps) {
     const targets: appmesh.WeightedTarget[] = [];
     props.nodes.forEach(data => {
       const node = props.mesh.addVirtualNode(`VirtualNode-${data.name}`, {

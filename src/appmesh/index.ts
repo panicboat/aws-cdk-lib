@@ -1,23 +1,9 @@
 import * as cdk from '@aws-cdk/core';
-import * as appmesh from '@aws-cdk/aws-appmesh';
-import { IService } from '@aws-cdk/aws-servicediscovery';
 import { VirtualRouter } from './resources/vrouter';
 import { VirtualService } from './resources/vservice';
 import { VirtualNode } from './resources/vnode';
+import { Props } from './props';
 
-interface Props {
-  projectName: string;
-  serviceName: string;
-  mesh: appmesh.IMesh;
-  listeners: appmesh.VirtualRouterListener[];
-  route: {
-    grpc?: { name: string, match: appmesh.GrpcRouteMatch }[];
-    http?: { name: string, match: appmesh.HttpRouteMatch }[];
-    http2?: { name: string, match: appmesh.HttpRouteMatch }[];
-    tcp?: { name: string }[];
-  }
-  nodes: { name: string, service?: IService, listeners: appmesh.VirtualNodeListener[], weight: number, backends?: string[] }[];
-}
 interface IMeshResources {
 }
 export class MeshResources extends cdk.Construct implements IMeshResources {
