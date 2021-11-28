@@ -41,6 +41,7 @@ export class Gateway extends Resource implements IGateway {
       autoAcceptSharedAttachments: 'enable',
       defaultRouteTableAssociation: 'disable',
       defaultRouteTablePropagation: 'disable',
+      tags: [{ key: 'Name', value: 'main' }],
     });
     new CfnResourceShare(this.scope, 'ResourceShare', {
       name: 'TransitGateway',

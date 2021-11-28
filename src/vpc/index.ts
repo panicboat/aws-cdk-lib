@@ -30,6 +30,7 @@ interface Props {
 interface IVpcResources {
 }
 export class VpcResources extends cdk.Construct implements IVpcResources {
+
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 

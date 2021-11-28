@@ -9,6 +9,7 @@ import { PipelineProject } from '@aws-cdk/aws-codebuild';
 interface IDeliveryResources {
 }
 export class DeliveryResources extends cdk.Construct implements IDeliveryResources {
+
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 

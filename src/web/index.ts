@@ -12,6 +12,7 @@ interface IWebResource {
 }
 export class WebResource extends cdk.Construct implements IWebResource {
   public service!: ecs.FargateService;
+
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id);
 
