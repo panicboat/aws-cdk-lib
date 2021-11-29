@@ -1,12 +1,13 @@
 import { CfnSecurityGroup, CfnSecurityGroupIngress } from '@aws-cdk/aws-ec2';
+import { SecurityGroupProps } from '../props';
 import { Resource } from '../resource';
 
 interface ISecurityGroup {
-  createMain(props: { vpcId: string, cidrBlock: string }): string
+  createMain(props: SecurityGroupProps): string
 }
 export class SecurityGroup extends Resource implements ISecurityGroup {
 
-  public createMain(props: { vpcId: string, cidrBlock: string }) {
+  public createMain(props: SecurityGroupProps) {
     const sg = new CfnSecurityGroup(this.scope, 'SecurityGroup', {
       groupDescription: 'security group for organizations.',
       groupName: 'main',

@@ -6,27 +6,8 @@ import { Iam } from './resources/iam';
 import { Endpoint } from './resources/endpoint';
 import { RouteTable } from './resources/routetable';
 import { SecurityGroup } from './resources/securitygroup';
+import { Props, SubnetRouteTableAssociationProps } from './props';
 
-interface Props {
-  projectName: string
-  cidrBlock: string
-  principal?: {
-    primary?: {
-      accountId?: string
-      transitGatewayId?: string
-    }
-    secondary?: {
-      accountIds?: string[]
-      cidrBlock?: string[]
-      tgwAttachmentIds?: string[]
-    }
-  }
-  endpoints?: {
-    serviceName: string
-    privateDnsEnabled: boolean
-    vpcEndpointType: string
-  }[]
-}
 interface IVpcResources {
 }
 export class VpcResources extends cdk.Construct implements IVpcResources {
@@ -78,5 +59,10 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
 
     const endpoint = new Endpoint(this);
     endpoint.createVpcEndpoint({ vpcId: vpcId, subnets: { private: subnets.private }, securityGroupIds: [ sgMain ], endpoints: (props.endpoints || []) });
+  }
+
+  public subnetRouteTableAssociation(props: SubnetRouteTableAssociationProps) {
+    const routetable = new RouteTable(this);
+    routetable.subnetRouteTableAssociation(props);
   }
 }

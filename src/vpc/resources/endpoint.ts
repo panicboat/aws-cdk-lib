@@ -1,22 +1,17 @@
 import { CfnVPCEndpoint } from '@aws-cdk/aws-ec2';
+import { EndpointProps } from '../props';
 import { Resource } from '../resource';
 
-interface Props {
-  vpcId: string
-  subnets: {
-    private: string[]
-  }
-  securityGroupIds: string[]
-  endpoints: { serviceName: string, privateDnsEnabled: boolean, vpcEndpointType: string }[]
-}
 interface IEndpoint {
-  createVpcEndpoint(props: Props): void;
+  createVpcEndpoint(props: EndpointProps): void;
 }
 export class Endpoint extends Resource implements IEndpoint {
 
-  public createVpcEndpoint(props: Props) {
+  public createVpcEndpoint(props: EndpointProps) {
     const endpoints = props.endpoints.concat([
       { serviceName: 's3',      privateDnsEnabled: false, vpcEndpointType: 'Gateway' },
+      { serviceName: 'ecr.dkr', privateDnsEnabled: true,  vpcEndpointType: 'Interface' },
+      { serviceName: 'ecr.api', privateDnsEnabled: true,  vpcEndpointType: 'Interface' },
     ]);
     endpoints.forEach(endpoint => {
       new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoint.serviceName}`, {

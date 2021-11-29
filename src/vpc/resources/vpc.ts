@@ -1,17 +1,15 @@
 import * as cdk from '@aws-cdk/core';
 import { CfnVPC } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
+import { VpcPros } from '../props';
 
-interface Props {
-  projectName: string
-  cidrBlock: string
-}
+
 interface IVpc {
-  createVPC(props: Props): void;
+  createVPC(props: VpcPros): void;
 }
 export class Vpc extends Resource implements IVpc {
 
-  public createVPC(props: Props): string {
+  public createVPC(props: VpcPros): string {
     const vpc = new CfnVPC(this.scope, 'Vpc', {
       cidrBlock: props.cidrBlock,
       enableDnsHostnames: true,

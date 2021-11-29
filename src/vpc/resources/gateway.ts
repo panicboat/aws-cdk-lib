@@ -2,16 +2,17 @@ import * as cdk from '@aws-cdk/core';
 import { CfnInternetGateway, CfnVPCGatewayAttachment, CfnEIP, CfnNatGateway, CfnTransitGateway, CfnTransitGatewayAttachment } from '@aws-cdk/aws-ec2';
 import { CfnResourceShare } from '@aws-cdk/aws-ram';
 import { Resource } from '../resource';
+import { AttachTransitGatewayProps, InternetGatewayProps, NatGatewayProps, TransitGatewayProps } from '../props';
 
 interface IGateway {
-  createInternetGateway(props: { vpcId: string }): string;
-  createNatGateway(props: { subnets: { public: string[] } }): string[];
-  createTransitGateway(props: { projectName: string, principal: { secondary: { accountIds: string[] } } }): string;
-  attachTransitGateway(props: { projectName: string, vpcId: string, subnets: { private: string[] }, transitGatewayId: string }): CfnTransitGatewayAttachment;
+  createInternetGateway(props: InternetGatewayProps): string;
+  createNatGateway(props: NatGatewayProps): string[];
+  createTransitGateway(props: TransitGatewayProps): string;
+  attachTransitGateway(props: AttachTransitGatewayProps): CfnTransitGatewayAttachment;
 }
 export class Gateway extends Resource implements IGateway {
 
-  public createInternetGateway(props: { vpcId: string }) {
+  public createInternetGateway(props: InternetGatewayProps) {
     const igw = new CfnInternetGateway(this.scope, 'InternetGateway', {});
     new CfnVPCGatewayAttachment(this.scope, 'VpcGatewayAttachment', {
       vpcId: props.vpcId,
@@ -20,7 +21,7 @@ export class Gateway extends Resource implements IGateway {
     return igw.ref;
   }
 
-  public createNatGateway(props: { subnets: { public: string[] } }) {
+  public createNatGateway(props: NatGatewayProps) {
     const azName: string[] = this.getAvailabilityZoneNames();
     const natGatewayIds: string[] = [];
     for (let i = 0; i < azName.length; i++) {
@@ -36,7 +37,7 @@ export class Gateway extends Resource implements IGateway {
     return natGatewayIds;
   }
 
-  public createTransitGateway(props: { projectName: string, principal: { secondary: { accountIds: string[] } } }) {
+  public createTransitGateway(props: TransitGatewayProps) {
     const tgw = new CfnTransitGateway(this.scope, 'TransitGateway', {
       autoAcceptSharedAttachments: 'enable',
       defaultRouteTableAssociation: 'disable',
@@ -57,7 +58,7 @@ export class Gateway extends Resource implements IGateway {
     return cdk.Fn.getAtt(tgw.logicalId, 'Id').toString();
   }
 
-  public attachTransitGateway(props: { projectName: string, vpcId: string, subnets: { private: string[] }, transitGatewayId: string }) {
+  public attachTransitGateway(props: AttachTransitGatewayProps) {
     const attachment = new CfnTransitGatewayAttachment(this.scope, `TransitGatewayAttachment`, {
       transitGatewayId: props.transitGatewayId,
       vpcId: props.vpcId,

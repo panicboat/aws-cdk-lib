@@ -1,23 +1,15 @@
 import * as cdk from '@aws-cdk/core';
 import { CfnSubnet, SubnetType } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
+import { SubnetProps } from '../props';
 
-interface Props {
-  projectName: string
-  vpcId: string
-  cidrBlock: string
-}
 interface ISubnet {
-  createSubnets(props: Props): {
-    public: string[]
-    private: string[]
-    isolated: string[]
-  }
+  createSubnets(props: SubnetProps): { public: string[], private: string[], isolated: string[] }
 }
 export class Subnet extends Resource implements ISubnet {
   private ip = require('ip');
 
-  public createSubnets(props: Props) {
+  public createSubnets(props: SubnetProps) {
     let resources: { [key: string]: string[]; } = {};
     let firstAddress = props.cidrBlock.split('/')[0];
     for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {

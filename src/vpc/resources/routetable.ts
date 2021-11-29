@@ -1,15 +1,16 @@
 import * as cdk from '@aws-cdk/core';
-import { CfnRoute, CfnRouteTable, CfnSubnetRouteTableAssociation, CfnTransitGatewayRoute, CfnTransitGatewayRouteTable, CfnTransitGatewayRouteTableAssociation, CfnTransitGatewayRouteTablePropagation } from '@aws-cdk/aws-ec2';
+import { CfnRoute, CfnRouteTable, CfnSubnetRouteTableAssociation, CfnTransitGatewayRoute, CfnTransitGatewayRouteTable, CfnTransitGatewayRouteTableAssociation, CfnTransitGatewayRouteTablePropagation, ISubnet } from '@aws-cdk/aws-ec2';
 import { Resource } from '../resource';
+import { SubnetRouteTableAssociationProps, TransitGatewayRouteProps, VpcRoutePrivateProps, VpcRoutePublicProps } from '../props';
 
 interface IRouteTable {
-  createVpcRoutePublic(props: { vpcId: string, internetGatewayId: string, subnets: { public: string[] }, principal: { primary: { transitGatewayId: string }, secondary: { cidrBlock: string[] } } }): CfnRoute[];
-  createVpcRoutePrivate(props: { vpcId: string, subnets: { private: string[] }, principal: { primary: { natGatewayIds: string[], transitGatewayId: string } } }): CfnRoute[];
-  createVpcRoutePrivate(props: { vpcId: string, subnets: { private: string[] }, principal: { primary: { natGatewayIds: string[], transitGatewayId: string } } }): void;
+  createVpcRoutePublic(props: VpcRoutePublicProps): CfnRoute[];
+  createVpcRoutePrivate(props: VpcRoutePrivateProps): CfnRoute[];
+  subnetRouteTableAssociation(props: SubnetRouteTableAssociationProps): void;
 }
 export class RouteTable extends Resource implements IRouteTable {
 
-  public createVpcRoutePublic(props: { vpcId: string, internetGatewayId: string, subnets: { public: string[] }, principal: { primary: { transitGatewayId: string }, secondary: { cidrBlock: string[] } } }) {
+  public createVpcRoutePublic(props: VpcRoutePublicProps) {
     const routes: CfnRoute[] = [];
     const routetable = new CfnRouteTable(this.scope, 'PublicRouteTable', {
       vpcId: props.vpcId
@@ -37,7 +38,7 @@ export class RouteTable extends Resource implements IRouteTable {
     return routes;
   }
 
-  public createVpcRoutePrivate(props: { vpcId: string, subnets: { private: string[] }, principal: { primary: { natGatewayIds: string[], transitGatewayId: string } } }) {
+  public createVpcRoutePrivate(props: VpcRoutePrivateProps) {
     const routes: CfnRoute[] = [];
     for (let i = 0; i < this.getAvailabilityZoneNames().length; i++) {
       const routetable = new CfnRouteTable(this.scope, `ProtectedRouteTable${this.getAvailabilityZoneNames()[i]}`, {
@@ -67,7 +68,7 @@ export class RouteTable extends Resource implements IRouteTable {
     return routes;
   }
 
-  public createTransitGatewayRoute(attachement: cdk.CfnResource, props: { principal: { primary: { transitGatewayId: string }, secondary: { transitGatewayAttachmentIds: string[] } } }) {
+  public createTransitGatewayRoute(attachement: cdk.CfnResource, props: TransitGatewayRouteProps) {
     const routetable = new CfnTransitGatewayRouteTable(this.scope, 'TransitGatewayRouteTable', {
       transitGatewayId: props.principal.primary.transitGatewayId,
     });
@@ -84,6 +85,22 @@ export class RouteTable extends Resource implements IRouteTable {
         transitGatewayRouteTableId: routetable.ref,
       });
     }
+  }
+
+  public subnetRouteTableAssociation(props: SubnetRouteTableAssociationProps) {
+    Array.from(new Set(props.subnets.map(subnet => subnet.routeTable.routeTableId))).forEach(routeTableId => {
+      new CfnRoute(this.scope, `Route-${routeTableId}`, {
+        destinationCidrBlock: props.destinationCidrBlock,
+        transitGatewayId: props.principal.primary.transitGatewayId,
+        routeTableId: routeTableId,
+      });
+      props.subnets.forEach(subnet => {
+        new CfnSubnetRouteTableAssociation(this.scope, `SubnetRouteTableAssociation-${routeTableId}-${subnet.subnetId}`, {
+          routeTableId: routeTableId,
+          subnetId: subnet.subnetId,
+        });
+      });
+    });
   }
 
   private tgwRouteTableAssociation(id: string, transitGatewayAttachmentId: string, transitGatewayRouteTableId: string) {
