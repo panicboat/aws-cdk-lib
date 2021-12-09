@@ -38,6 +38,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       ],
       environment: {
         APPMESH_VIRTUAL_NODE_NAME: props.virtualNodeName,
+        APPMESH_METRIC_EXTENSION_VERSION: '1',
         ENVOY_LOG_LEVEL: 'info',
         APPMESH_XDS_ENDPOINT: '',
         ENABLE_ENVOY_XRAY_TRACING: '1',
@@ -60,7 +61,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
     });
     taskDefinition.addContainer('xray-daemon', {
       containerName: 'xray-daemon',
-      image: ecs.ContainerImage.fromRegistry('amazon/aws-xray-daemon:latest'),
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/xray/aws-xray-daemon:latest'),
       user: '1337',
       essential: true,
       portMappings: [
@@ -79,7 +80,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       firelensConfig: {
         type: ecs.FirelensLogRouterType.FLUENTBIT,
       },
-      image: ecs.ContainerImage.fromRegistry('amazon/aws-for-fluent-bit:latest')
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/aws-observability/aws-for-fluent-bit:latest')
     });
     props.containers.forEach(container => {
       taskDefinition.addContainer(container.containerName!, container);

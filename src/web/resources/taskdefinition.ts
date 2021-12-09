@@ -24,7 +24,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       firelensConfig: {
         type: ecs.FirelensLogRouterType.FLUENTBIT,
       },
-      image: ecs.ContainerImage.fromRegistry('amazon/aws-for-fluent-bit:latest')
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/aws-observability/aws-for-fluent-bit:latest')
     });
     return taskDefinition;
   }
