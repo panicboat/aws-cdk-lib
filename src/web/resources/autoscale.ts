@@ -33,6 +33,8 @@ export class AutoScale extends Resource implements IAutoScale {
     if (props.utilizationPercent !== 0) {
       props.capacity.scaleOnCpuUtilization(`TargetTrackingScaling4CpuUtilization-${props.projectName}`, {
         targetUtilizationPercent: props.utilizationPercent,
+        scaleInCooldown: cdk.Duration.seconds(60),
+        scaleOutCooldown: cdk.Duration.seconds(30),
       });
     }
   }
@@ -53,6 +55,8 @@ export class AutoScale extends Resource implements IAutoScale {
     if (props.utilizationPercent !== 0) {
       props.capacity.scaleOnMemoryUtilization(`TargetTrackingScaling4MemoryUtilization-${props.projectName}`, {
         targetUtilizationPercent: props.utilizationPercent,
+        scaleInCooldown: cdk.Duration.seconds(60),
+        scaleOutCooldown: cdk.Duration.seconds(30),
       });
     }
   }
