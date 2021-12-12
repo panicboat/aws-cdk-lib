@@ -18,19 +18,34 @@ export class AutoScale extends Resource implements IAutoScale {
   }
 
   public cpuStepScaling(props: StepScalingProps) {
-    // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
     if (props.scalingIntervals.length !== 0) {
+      // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
       props.capacity.scaleOnMetric(`StepScaling4CpuUtilization-${props.projectName}`, {
         metric: props.service.metricCpuUtilization(),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
+        metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
+        cooldown: cdk.Duration.seconds(30),
+      });
+    }
+  }
+
+  public memoryStepScaling(props: StepScalingProps) {
+    if (props.scalingIntervals.length !== 0) {
+      // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
+      props.capacity.scaleOnMetric(`StepScaling4MemoryUtilization-${props.projectName}`, {
+        metric: props.service.metricMemoryUtilization(),
+        scalingSteps: props.scalingIntervals,
+        adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
+        metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
+        cooldown: cdk.Duration.seconds(30),
       });
     }
   }
 
   public cpuTargetTrackingScaling(props: TargetTrackingScalingProps) {
-    // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
     if (props.utilizationPercent !== 0) {
+      // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
       props.capacity.scaleOnCpuUtilization(`TargetTrackingScaling4CpuUtilization-${props.projectName}`, {
         targetUtilizationPercent: props.utilizationPercent,
         scaleInCooldown: cdk.Duration.seconds(60),
@@ -39,20 +54,9 @@ export class AutoScale extends Resource implements IAutoScale {
     }
   }
 
-  public memoryStepScaling(props: StepScalingProps) {
-    // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
-    if (props.scalingIntervals.length !== 0) {
-      props.capacity.scaleOnMetric(`StepScaling4MemoryUtilization-${props.projectName}`, {
-        metric: props.service.metricMemoryUtilization(),
-        scalingSteps: props.scalingIntervals,
-        adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
-      });
-    }
-  }
-
   public memoryTargetTrackingScaling(props: TargetTrackingScalingProps) {
-    // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
     if (props.utilizationPercent !== 0) {
+      // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
       props.capacity.scaleOnMemoryUtilization(`TargetTrackingScaling4MemoryUtilization-${props.projectName}`, {
         targetUtilizationPercent: props.utilizationPercent,
         scaleInCooldown: cdk.Duration.seconds(60),
