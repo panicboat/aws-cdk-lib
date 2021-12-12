@@ -51,7 +51,7 @@ export class AutoScale extends Resource implements IAutoScale {
   public memoryTargetTrackingScaling(props: TargetTrackingScalingProps) {
     // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
     if (props.utilizationPercent !== 0) {
-      props.capacity.scaleOnCpuUtilization(`TargetTrackingScaling4MemoryUtilization-${props.projectName}`, {
+      props.capacity.scaleOnMemoryUtilization(`TargetTrackingScaling4MemoryUtilization-${props.projectName}`, {
         targetUtilizationPercent: props.utilizationPercent,
       });
     }
