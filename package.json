@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@aws-cdk/aws-appmesh": "latest",
+    "@aws-cdk/aws-applicationautoscaling": "latest",
     "@aws-cdk/aws-autoscaling": "latest",
     "@aws-cdk/aws-codebuild": "latest",
     "@aws-cdk/aws-codepipeline": "latest",

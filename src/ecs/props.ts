@@ -1,4 +1,5 @@
 import { ScalingInterval } from "@aws-cdk/aws-autoscaling"
+import { ScalingSchedule } from "@aws-cdk/aws-applicationautoscaling"
 import { ISubnet, ISecurityGroup } from "@aws-cdk/aws-ec2"
 import { ContainerDefinitionOptions, FargateService, ICluster, ScalableTaskCount, TaskDefinition } from "@aws-cdk/aws-ecs"
 import { IManagedPolicy, IRole, Policy } from "@aws-cdk/aws-iam"
@@ -42,6 +43,7 @@ export interface Props {
       steps?: ScalingInterval[]
       target?: number
     }
+    schedules?: ScalingSchedule[]
   }
 }
 
@@ -97,4 +99,11 @@ export interface TargetTrackingScalingProps {
   service: FargateService
   capacity: ScalableTaskCount
   utilizationPercent: number
+}
+
+export interface ScheduledScalingProps {
+  projectName: string
+  service: FargateService
+  capacity: ScalableTaskCount
+  schedules: ScalingSchedule[]
 }

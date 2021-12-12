@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as autoscaling from '@aws-cdk/aws-applicationautoscaling'
 import { Resource } from '../resource';
-import { StepScalingProps, TargetTrackingScalingProps, ScaleCapacityProps } from '../props';
+import { StepScalingProps, TargetTrackingScalingProps, ScaleCapacityProps, ScheduledScalingProps } from '../props';
 import { ScalableTaskCount } from '@aws-cdk/aws-ecs';
 
 interface IAutoScale {
@@ -55,5 +55,11 @@ export class AutoScale extends Resource implements IAutoScale {
         targetUtilizationPercent: props.utilizationPercent,
       });
     }
+  }
+
+  public scheduledScaliung(props: ScheduledScalingProps) {
+    props.schedules.forEach((schedule, index) => {
+      props.capacity.scaleOnSchedule(`ScheduledScaling-${props.projectName}-${index}`, schedule);
+    });
   }
 }

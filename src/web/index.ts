@@ -54,6 +54,7 @@ export class WebResource extends cdk.Construct implements IWebResource {
     autoscale.cpuTargetTrackingScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, utilizationPercent: props.autoScale.cpuUtilization?.target || 0 });
     autoscale.memoryStepScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, scalingIntervals: props.autoScale.memoryUtilization?.steps || [] });
     autoscale.memoryTargetTrackingScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, utilizationPercent: props.autoScale.memoryUtilization?.target || 0 });
+    autoscale.scheduledScaliung({ projectName: props.projectName, service: ecsService, capacity: capacity, schedules: props.autoScale.schedules || [] });
 
     this.service = ecsService;
   }
