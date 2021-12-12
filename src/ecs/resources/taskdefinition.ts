@@ -80,7 +80,11 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
       firelensConfig: {
         type: ecs.FirelensLogRouterType.FLUENTBIT,
       },
-      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/aws-observability/aws-for-fluent-bit:latest')
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/aws-observability/aws-for-fluent-bit:latest'),
+      logging: ecs.LogDriver.awsLogs({
+        streamPrefix: `envoy-${props.projectName}`,
+        logGroup: props.logGroup,
+      })
     });
     props.containers.forEach(container => {
       taskDefinition.addContainer(container.containerName!, container);
