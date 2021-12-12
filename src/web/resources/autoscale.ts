@@ -1,8 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as autoscaling from '@aws-cdk/aws-applicationautoscaling'
 import { Resource } from '../resource';
+import { StepScalingProps, TargetTrackingScalingProps, ScaleCapacityProps } from '../props';
 import { ScalableTaskCount } from '@aws-cdk/aws-ecs';
-import { ScaleCapacityProps, CpuStepScalingProps, CpuTargetTrackingScalingProps } from '../props';
 
 interface IAutoScale {
   createCapacity(props: ScaleCapacityProps): ScalableTaskCount;
@@ -17,7 +17,7 @@ export class AutoScale extends Resource implements IAutoScale {
     return capacity;
   }
 
-  public cpuStepScaling(props: CpuStepScalingProps) {
+  public cpuStepScaling(props: StepScalingProps) {
     // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
     if (props.scalingIntervals.length !== 0) {
       props.capacity.scaleOnMetric(`StepScaling4CpuUtilization-${props.projectName}`, {
@@ -28,11 +28,31 @@ export class AutoScale extends Resource implements IAutoScale {
     }
   }
 
-  public cpuTargetTrackingScaling(props: CpuTargetTrackingScalingProps) {
+  public cpuTargetTrackingScaling(props: TargetTrackingScalingProps) {
     // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
-    if (props.cpuUtilizationPercent !== 0) {
+    if (props.utilizationPercent !== 0) {
       props.capacity.scaleOnCpuUtilization(`TargetTrackingScaling4CpuUtilization-${props.projectName}`, {
-        targetUtilizationPercent: props.cpuUtilizationPercent,
+        targetUtilizationPercent: props.utilizationPercent,
+      });
+    }
+  }
+
+  public memoryStepScaling(props: StepScalingProps) {
+    // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
+    if (props.scalingIntervals.length !== 0) {
+      props.capacity.scaleOnMetric(`StepScaling4MemoryUtilization-${props.projectName}`, {
+        metric: props.service.metricMemoryUtilization(),
+        scalingSteps: props.scalingIntervals,
+        adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
+      });
+    }
+  }
+
+  public memoryTargetTrackingScaling(props: TargetTrackingScalingProps) {
+    // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0?lang=typescript#target-tracking-scaling
+    if (props.utilizationPercent !== 0) {
+      props.capacity.scaleOnMemoryUtilization(`TargetTrackingScaling4MemoryUtilization-${props.projectName}`, {
+        targetUtilizationPercent: props.utilizationPercent,
       });
     }
   }

@@ -51,7 +51,9 @@ export class WebResource extends cdk.Construct implements IWebResource {
     const autoscale = new AutoScale(this);
     const capacity = autoscale.createCapacity({ service: ecsService, minCapacity: props.autoScale.minCapacity, maxCapacity: props.autoScale.maxCapacity });
     autoscale.cpuStepScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, scalingIntervals: props.autoScale.cpuUtilization?.steps || [] });
-    autoscale.cpuTargetTrackingScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, cpuUtilizationPercent: props.autoScale.cpuUtilization?.target || 0 });
+    autoscale.cpuTargetTrackingScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, utilizationPercent: props.autoScale.cpuUtilization?.target || 0 });
+    autoscale.memoryStepScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, scalingIntervals: props.autoScale.memoryUtilization?.steps || [] });
+    autoscale.memoryTargetTrackingScaling({ projectName: props.projectName, service: ecsService, capacity: capacity, utilizationPercent: props.autoScale.memoryUtilization?.target || 0 });
 
     this.service = ecsService;
   }
