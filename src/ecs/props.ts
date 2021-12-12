@@ -38,6 +38,10 @@ export interface Props {
       steps?: ScalingInterval[]
       target?: number
     }
+    memoryUtilization?: {
+      steps?: ScalingInterval[]
+      target?: number
+    }
   }
 }
 
@@ -81,16 +85,16 @@ export interface ScaleCapacityProps {
   maxCapacity: number
 }
 
-export interface CpuStepScalingProps {
+export interface StepScalingProps {
   projectName: string
   service: FargateService
   capacity: ScalableTaskCount
   scalingIntervals: ScalingInterval[]
 }
 
-export interface CpuTargetTrackingScalingProps {
+export interface TargetTrackingScalingProps {
   projectName: string
   service: FargateService
   capacity: ScalableTaskCount
-  cpuUtilizationPercent: number
+  utilizationPercent: number
 }
