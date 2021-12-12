@@ -49,7 +49,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
           Name: 'cloudwatch',
           region: this.stack.region,
           log_group_name: props.logGroup.logGroupName,
-          log_stream_prefix: 'envoy-',
+          log_stream_prefix: '',
         },
       }),
       healthCheck: {
@@ -72,7 +72,7 @@ export class TaskDefinition extends Resource implements ITaskDefinition {
           Name: 'cloudwatch',
           region: this.stack.region,
           log_group_name: props.logGroup.logGroupName,
-          log_stream_prefix: 'xray-',
+          log_stream_prefix: '',
         },
       }),
     });
