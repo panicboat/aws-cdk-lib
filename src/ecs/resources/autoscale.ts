@@ -24,7 +24,7 @@ export class AutoScale extends Resource implements IAutoScale {
         metric: props.service.metricCpuUtilization(),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
-        metricAggregationType: autoscaling.MetricAggregationType.AVERAGE,
+        metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
         cooldown: cdk.Duration.seconds(30),
       });
     }
@@ -37,7 +37,7 @@ export class AutoScale extends Resource implements IAutoScale {
         metric: props.service.metricMemoryUtilization(),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
-        metricAggregationType: autoscaling.MetricAggregationType.AVERAGE,
+        metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
         cooldown: cdk.Duration.seconds(30),
       });
     }
