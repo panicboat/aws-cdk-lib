@@ -10,8 +10,6 @@ export class Endpoint extends Resource implements IEndpoint {
   public createVpcEndpoint(props: EndpointProps) {
     const endpoints = props.endpoints.concat([
       { serviceName: 's3',      privateDnsEnabled: false, vpcEndpointType: 'Gateway' },
-      { serviceName: 'ecr.dkr', privateDnsEnabled: true,  vpcEndpointType: 'Interface' },
-      { serviceName: 'ecr.api', privateDnsEnabled: true,  vpcEndpointType: 'Interface' },
     ]);
     endpoints.forEach(endpoint => {
       new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoint.serviceName}`, {
