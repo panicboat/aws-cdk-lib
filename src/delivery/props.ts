@@ -167,7 +167,7 @@ export interface EcrSourceActionProps {
 
 export interface PipelineDeployStageStageProps {
   pipeline: Pipeline
-  service: IBaseService
+  service: IFargateService
   role: IRole
   artifact: {
     input: Artifact
