@@ -26,7 +26,7 @@ export class DeliveryResources extends cdk.Construct implements IDeliveryResourc
     if (props.github.branch !== undefined) {
       buildProject = build.createBuildProject({
         projectName: props.projectName, vpc: props.vpc, securityGroups: (props.securityGroups || []),
-        build: { buildDir: props.build.buildDir || '.', buildRole: buildRole, cacheBucket: props.build.cacheBucket, containerName: props.build.containerName },
+        build: { buildDir: props.build.buildDir || '.', buildRole: buildRole, containerName: props.build.containerName },
         credentialArn: props.credentialArn,
       });
     }
@@ -34,7 +34,7 @@ export class DeliveryResources extends cdk.Construct implements IDeliveryResourc
     if (props.principal !== undefined) {
       releaseProject = build.createBridgeProject({
         projectName: props.projectName, vpc: props.vpc, securityGroups: (props.securityGroups || []),
-        build: { buildRole: buildRole, cacheBucket: props.build.cacheBucket, containerName: props.build.containerName },
+        build: { buildRole: buildRole, containerName: props.build.containerName },
         github: { owner: props.github.owner, repository: props.github.repository, version: props.github.version },
         credentialArn: props.credentialArn,
       });
@@ -43,7 +43,7 @@ export class DeliveryResources extends cdk.Construct implements IDeliveryResourc
     if (props.github.branch === undefined) {
       bridgeProject = build.createBridgeProject({
         projectName: props.projectName, vpc: props.vpc, securityGroups: (props.securityGroups || []),
-        build: { buildRole: buildRole, cacheBucket: props.build.cacheBucket, containerName: props.build.containerName },
+        build: { buildRole: buildRole, containerName: props.build.containerName },
         github: { owner: props.github.owner, repository: props.github.repository, version: props.github.version },
         credentialArn: props.credentialArn,
       });

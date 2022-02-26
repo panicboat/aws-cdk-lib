@@ -13,7 +13,6 @@ export class Build extends Resource implements IBuild {
   public createBuildProject(props: BuildProjectProps) {
     return new codebuild.PipelineProject(this.scope, `BuildProject-${props.projectName}`, {
       projectName: `${props.projectName}-build`,
-      cache: codebuild.Cache.bucket(props.build.cacheBucket, { prefix: `${props.projectName}-build` }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
         computeType: codebuild.ComputeType.LARGE,
@@ -87,7 +86,6 @@ export class Build extends Resource implements IBuild {
   public createReleaseProject(props: ReleaseProjectProps) {
     return new codebuild.PipelineProject(this.scope, `ReleaseProject-${props.projectName}`, {
       projectName: `${props.projectName}-release`,
-      cache: codebuild.Cache.bucket(props.build.cacheBucket, { prefix: `${props.projectName}-release` }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
         computeType: codebuild.ComputeType.SMALL,
@@ -180,7 +178,6 @@ export class Build extends Resource implements IBuild {
   public createBridgeProject(props: BridgeProject) {
     return new codebuild.PipelineProject(this.scope, `BridgeProject-${props.projectName}`, {
       projectName: `${props.projectName}-bridge`,
-      cache: codebuild.Cache.bucket(props.build.cacheBucket, { prefix: `${props.projectName}-bridge` }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
         computeType: codebuild.ComputeType.SMALL,

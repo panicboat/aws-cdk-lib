@@ -1,7 +1,7 @@
 import { PipelineProject } from "@aws-cdk/aws-codebuild"
 import { Artifact, IAction, Pipeline } from "@aws-cdk/aws-codepipeline"
 import { IVpc, ISecurityGroup } from "@aws-cdk/aws-ec2"
-import { IBaseService } from "@aws-cdk/aws-ecs"
+import { IFargateService } from "@aws-cdk/aws-ecs"
 import { IManagedPolicy, IRole, Policy } from "@aws-cdk/aws-iam"
 import { IBucket } from "@aws-cdk/aws-s3"
 
@@ -10,10 +10,9 @@ export interface Props {
   vpc: IVpc
   securityGroups?: ISecurityGroup[]
   credentialArn: string
-  service: IBaseService
+  service: IFargateService
   build: {
     buildDir?: string
-    cacheBucket: IBucket
     containerName: string
   }
   artifact: {
@@ -83,7 +82,6 @@ export interface BuildProjectProps {
   build: {
     buildDir: string
     buildRole: IRole
-    cacheBucket: IBucket
     containerName: string
   }
   credentialArn: string
@@ -95,7 +93,6 @@ export interface ReleaseProjectProps {
   securityGroups: ISecurityGroup[]
   build: {
     buildRole: IRole
-    cacheBucket: IBucket
   }
   github: {
     owner: string
@@ -115,7 +112,6 @@ export interface BridgeProject {
   securityGroups: ISecurityGroup[]
   build: {
     buildRole: IRole
-    cacheBucket: IBucket
     containerName: string
   }
   github: {
