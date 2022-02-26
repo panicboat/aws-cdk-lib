@@ -1,7 +1,7 @@
 import { PipelineProject } from "@aws-cdk/aws-codebuild"
 import { Artifact, IAction, Pipeline } from "@aws-cdk/aws-codepipeline"
 import { IVpc, ISecurityGroup } from "@aws-cdk/aws-ec2"
-import { IFargateService } from "@aws-cdk/aws-ecs"
+import { IBaseService } from "@aws-cdk/aws-ecs"
 import { IManagedPolicy, IRole, Policy } from "@aws-cdk/aws-iam"
 import { IBucket } from "@aws-cdk/aws-s3"
 
@@ -10,7 +10,7 @@ export interface Props {
   vpc: IVpc
   securityGroups?: ISecurityGroup[]
   credentialArn: string
-  service: IFargateService
+  service: IBaseService
   build: {
     buildDir?: string
     containerName: string
@@ -167,7 +167,7 @@ export interface EcrSourceActionProps {
 
 export interface PipelineDeployStageStageProps {
   pipeline: Pipeline
-  service: IFargateService
+  service: IBaseService
   role: IRole
   artifact: {
     input: Artifact
