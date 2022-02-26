@@ -34,9 +34,7 @@ export class Listener extends Resource implements IListener {
   public createListenerRule(props: ListenerProps) {
     return new alb.ApplicationListenerRule(this.scope, `ListenerRule-${props.projectName}`, {
       action: alb.ListenerAction.forward(props.targetGroups),
-      conditions: [
-        alb.ListenerCondition.pathPatterns(['/maniax-touch/','/maniax-touch','/_nuxt*']),
-      ],
+      conditions: props.conditions,
       listener: alb.ApplicationListener.fromLookup(this.scope, `Listener-${props.projectName}`, { listenerArn: props.listenerArn }),
       priority: props.priority,
     });

@@ -2,9 +2,9 @@ import { ScalingSchedule } from "@aws-cdk/aws-applicationautoscaling"
 import { ScalingInterval } from "@aws-cdk/aws-autoscaling"
 import { ISubnet, ISecurityGroup, IVpc } from "@aws-cdk/aws-ec2"
 import { ContainerDefinitionOptions, FargateService, ICluster, ScalableTaskCount, TaskDefinition } from "@aws-cdk/aws-ecs"
-import { IApplicationLoadBalancerTarget, IApplicationTargetGroup } from "@aws-cdk/aws-elasticloadbalancingv2"
+import { IApplicationLoadBalancerTarget, IApplicationTargetGroup, ListenerCondition } from "@aws-cdk/aws-elasticloadbalancingv2"
 import { IManagedPolicy, IRole, Policy } from "@aws-cdk/aws-iam"
-import { ILogGroup, LogGroup } from "@aws-cdk/aws-logs"
+import { ILogGroup } from "@aws-cdk/aws-logs"
 
 export interface Props {
   projectName: string
@@ -16,7 +16,7 @@ export interface Props {
     cpu: number
     memoryLimitMiB: number
     containers: ContainerDefinitionOptions[]
-    logGroup: LogGroup
+    logGroup: ILogGroup
     cluster: ICluster
     role: {
       execution: {
@@ -45,6 +45,7 @@ export interface Props {
   listener?: {
     listenerArn: string
     healthCheckPath: string
+    conditions: ListenerCondition[]
     appPort: number
     priority: number
   }
@@ -125,6 +126,7 @@ export interface TargetGroupProps {
 export interface ListenerProps {
   projectName: string
   listenerArn: string
+  conditions: ListenerCondition[]
   priority: number
   targetGroups: IApplicationTargetGroup[]
 }

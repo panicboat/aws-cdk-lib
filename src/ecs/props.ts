@@ -3,7 +3,7 @@ import { ScalingSchedule } from "@aws-cdk/aws-applicationautoscaling"
 import { ISubnet, ISecurityGroup } from "@aws-cdk/aws-ec2"
 import { ContainerDefinitionOptions, FargateService, ICluster, ScalableTaskCount, TaskDefinition } from "@aws-cdk/aws-ecs"
 import { IManagedPolicy, IRole, Policy } from "@aws-cdk/aws-iam"
-import { ILogGroup, LogGroup } from "@aws-cdk/aws-logs"
+import { ILogGroup } from "@aws-cdk/aws-logs"
 import { INamespace } from "@aws-cdk/aws-servicediscovery"
 
 export interface Props {
@@ -18,7 +18,7 @@ export interface Props {
     appPorts: number[]
     containers: ContainerDefinitionOptions[]
     virtualNodeName: string
-    logGroup: LogGroup
+    logGroup: ILogGroup
     cluster: ICluster
     namespace: INamespace
     role: {

@@ -44,7 +44,7 @@ export class WebResource extends cdk.Construct implements IWebResource {
         projectName: props.projectName, vpc: props.ecs.cluster.vpc, targets: [ecsService], port: props.listener.appPort, healthCheckPath: props.listener.healthCheckPath
       });
       listener.createListenerRule({
-        projectName: props.projectName, listenerArn: props.listener.listenerArn, priority: props.listener.priority, targetGroups: [tg]
+        projectName: props.projectName, listenerArn: props.listener.listenerArn, conditions: props.listener.conditions, priority: props.listener.priority, targetGroups: [tg]
       });
     }
 
