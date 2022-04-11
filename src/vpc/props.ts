@@ -111,6 +111,10 @@ export interface EndpointProps {
     privateDnsEnabled: boolean
     vpcEndpointType: string
   }[]
+  routeTables: {
+    public: string[]
+    private: string[]
+  }
 }
 
 export interface IamProps {

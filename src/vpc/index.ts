@@ -40,14 +40,16 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     }
 
     const routetable = new RouteTable(this);
-    routetable.createVpcRoutePublic({
+    const publicRoute = routetable.createVpcRoutePublic({
       vpcId: vpcId, internetGatewayId: igwId, subnets: subnets, principal: { primary: { transitGatewayId: tgwId }, secondary: { cidrBlock: (props.principal?.secondary?.cidrBlock || []) } }
-    }).forEach(route => {
+    });
+    publicRoute.routes.forEach(route => {
       if (attachement !== undefined) { route.addDependsOn(attachement) }
     });
-    routetable.createVpcRoutePrivate({
+    const privateRoute = routetable.createVpcRoutePrivate({
       vpcId: vpcId, subnets: subnets, principal: { primary: { natGatewayIds: ngwIds, transitGatewayId: (props.principal?.primary?.transitGatewayId || '') } }
-    }).forEach(route => {
+    });
+    privateRoute.routes.forEach(route => {
       if (attachement !== undefined) { route.addDependsOn(attachement) }
     });
     if (tgwId.length !== 0) {
@@ -58,7 +60,7 @@ export class VpcResources extends cdk.Construct implements IVpcResources {
     const sgMain = new SecurityGroup(this).createMain({ vpcId: vpcId, cidrBlock: '10.0.0.0/8' });
 
     const endpoint = new Endpoint(this);
-    endpoint.createVpcEndpoint({ vpcId: vpcId, subnets: { private: subnets.private }, securityGroupIds: [ sgMain ], endpoints: (props.endpoints || []) });
+    endpoint.createVpcEndpoint({ vpcId: vpcId, subnets: { private: subnets.private }, securityGroupIds: [sgMain], endpoints: (props.endpoints || []), routeTables: { public: publicRoute.routeTableIds, private: privateRoute.routeTableIds } });
   }
 
   public subnetRouteTableAssociation(props: SubnetRouteTableAssociationProps) {
