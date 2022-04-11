@@ -9,7 +9,7 @@ export class Endpoint extends Resource implements IEndpoint {
 
   public createVpcEndpoint(props: EndpointProps) {
     const endpoints = props.endpoints.concat([
-      { serviceName: 's3',      privateDnsEnabled: false, vpcEndpointType: 'Gateway' },
+      { serviceName: 's3', privateDnsEnabled: false, vpcEndpointType: 'Gateway' },
     ]);
     endpoints.forEach(endpoint => {
       new CfnVPCEndpoint(this.scope, `VpcEndpoint-${endpoint.serviceName}`, {
@@ -18,6 +18,7 @@ export class Endpoint extends Resource implements IEndpoint {
         privateDnsEnabled: endpoint.privateDnsEnabled,
         securityGroupIds: endpoint.vpcEndpointType === 'Gateway' ? undefined : props.securityGroupIds,
         subnetIds: endpoint.vpcEndpointType === 'Gateway' ? undefined : props.subnets.private,
+        routeTableIds: endpoint.vpcEndpointType === 'Gateway' ? Array.from(new Set(props.routeTables.public.concat(props.routeTables.private))) : undefined,
         vpcEndpointType: endpoint.vpcEndpointType,
       });
     });
