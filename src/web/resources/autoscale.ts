@@ -21,7 +21,10 @@ export class AutoScale extends Resource implements IAutoScale {
     if (props.scalingIntervals.length !== 0) {
       // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
       props.capacity.scaleOnMetric(`StepScaling4CpuUtilization-${props.projectName}`, {
-        metric: props.service.metricCpuUtilization(),
+        metric: props.service.metricCpuUtilization({
+          period: cdk.Duration.minutes(1),
+          statistic: 'Maximum',
+        }),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
         metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
@@ -34,7 +37,10 @@ export class AutoScale extends Resource implements IAutoScale {
     if (props.scalingIntervals.length !== 0) {
       // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
       props.capacity.scaleOnMetric(`StepScaling4MemoryUtilization-${props.projectName}`, {
-        metric: props.service.metricMemoryUtilization(),
+        metric: props.service.metricMemoryUtilization({
+          period: cdk.Duration.minutes(1),
+          statistic: 'Maximum',
+        }),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
         metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
