@@ -22,12 +22,11 @@ export class AutoScale extends Resource implements IAutoScale {
       // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
       props.capacity.scaleOnMetric(`StepScaling4CpuUtilization-${props.projectName}`, {
         metric: props.service.metricCpuUtilization({
-          period: cdk.Duration.minutes(1),
-          statistic: 'Maximum',
+          period: cdk.Duration.minutes(3),
+          statistic: 'Average',
         }),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
-        metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
         cooldown: cdk.Duration.seconds(30),
       });
     }
@@ -38,12 +37,11 @@ export class AutoScale extends Resource implements IAutoScale {
       // https://constructs.dev/packages/@aws-cdk/aws-applicationautoscaling/v/1.117.0#step-scaling
       props.capacity.scaleOnMetric(`StepScaling4MemoryUtilization-${props.projectName}`, {
         metric: props.service.metricMemoryUtilization({
-          period: cdk.Duration.minutes(1),
-          statistic: 'Maximum',
+          period: cdk.Duration.minutes(3),
+          statistic: 'Average',
         }),
         scalingSteps: props.scalingIntervals,
         adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
-        metricAggregationType: autoscaling.MetricAggregationType.MAXIMUM,
         cooldown: cdk.Duration.seconds(30),
       });
     }
