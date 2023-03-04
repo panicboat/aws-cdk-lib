@@ -19,6 +19,12 @@ export class Vpc extends Construct implements IVpc {
       vpcName: id,
       cidr: props.cidr,
       subnetConfiguration: props.subnetConfiguration,
+      gatewayEndpoints: {
+        s3: {
+          service: ec2.GatewayVpcEndpointAwsService.S3,
+        }
+      },
+      natGatewayProvider: ec2.NatProvider.gateway(),
     })
   }
 }
