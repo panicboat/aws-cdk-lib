@@ -1,3 +1,0 @@
-# AppMesh Resources
-
-## Example

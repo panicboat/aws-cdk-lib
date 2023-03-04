@@ -1,2 +1,2 @@
-FROM node:16
-RUN npm install -g aws-cdk@v1
+FROM node:latest
+RUN npm install -g aws-cdk@v2
