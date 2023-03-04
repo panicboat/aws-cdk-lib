@@ -1,9 +1,6 @@
 build:
 	docker compose build
-	docker compose run aws-cdk bash -c 'npm install'
-
-bash:
-	docker compose run aws-cdk bash
+	docker compose run app bash -c 'npm install'
 
 clean:
 	rm -rf node_modules package-lock.json

@@ -1,9 +1,9 @@
 version: '3'
 services:
-  aws-cdk:
+  app:
     build: .
     environment:
       - TZ=Asia/Tokyo
     volumes:
-      - .:/aws-cdk
-    working_dir: /aws-cdk
+      - .:/app
+    working_dir: /app
