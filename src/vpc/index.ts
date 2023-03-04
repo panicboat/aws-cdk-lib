@@ -11,7 +11,7 @@ export class Vpc extends Construct implements IVpc {
 
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id);
-
+    this.vpc(scope, id, props)
   }
 
   private vpc(scope: Construct, id: string, props: Props) {
