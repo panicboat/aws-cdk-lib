@@ -1,7 +1,7 @@
 {
-  "name": "aws-cdk-lib",
+  "name": "aaws-cdk-modules",
   "version": "1.0.0",
-  "description": "aws-cdk-lib wrapper",
+  "description": "aws-cdk-lib modules",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
