@@ -1,5 +1,4 @@
 build:
-	docker compose build
 	docker compose run app bash -c 'yarn install'
 
 clean:
