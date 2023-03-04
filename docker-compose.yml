@@ -5,5 +5,5 @@ services:
     environment:
       - TZ=Asia/Tokyo
     volumes:
-      - .:/src/bin/app
-    working_dir: /src/bin/app
+      - .:/usr/src/app
+    working_dir: /usr/src/app
