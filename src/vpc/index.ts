@@ -5,6 +5,7 @@ interface IVpc {
 }
 export interface Props {
   cidr?: string
+  maxAzs?: number
   subnetConfiguration?: ec2.VpcProps['subnetConfiguration']
 }
 export class Vpc extends Construct implements IVpc {
@@ -18,6 +19,7 @@ export class Vpc extends Construct implements IVpc {
     const vpc = new ec2.Vpc(scope, `Vpc-${id}`, {
       vpcName: id,
       cidr: props.cidr,
+      maxAzs: props.maxAzs,
       subnetConfiguration: props.subnetConfiguration,
       gatewayEndpoints: {
         s3: {
