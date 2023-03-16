@@ -1,5 +1,5 @@
 build:
-	docker compose run app bash -c 'yarn install'
+	docker compose run --rm app bash -c 'yarn install'
 
 clean:
 	rm -rf node_modules package-lock.json
