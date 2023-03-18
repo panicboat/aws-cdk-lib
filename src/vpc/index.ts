@@ -9,14 +9,12 @@ export interface Props {
   maxAzs?: number
   subnetConfiguration?: ec2.VpcProps['subnetConfiguration']
 }
+
 export class Vpc extends Construct implements IVpc {
 
   /**
- * Vpc creates a VPC that spans a whole region.
- * It will automatically divide the provided VPC CIDR range, and create public and private subnets per Availability Zone.
- * Network routing for the public subnets will be configured to allow outbound access directly via an Internet Gateway.
- * Network routing for the private subnets will be configured to allow outbound access via a set of resilient NAT Gateways (one per AZ).
- */
+   * Create a VPC that spans the entire region.
+   */
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id);
     this.vpc(scope, id, props)
