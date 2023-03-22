@@ -34,7 +34,7 @@ export class FargateCluster extends Construct implements ICluster {
   private cluster(scope: Construct, id: string, props: Props) {
     const masterRole = this.role(scope, id, props)
 
-    const cluster = new eks.FargateCluster(scope, `Cluster-${id}`, {
+    const cluster = new eks.FargateCluster(scope, `EksCluster-${id}`, {
       version: eks.KubernetesVersion.V1_25,
       mastersRole: masterRole,
       clusterName: props.name,
@@ -46,7 +46,8 @@ export class FargateCluster extends Construct implements ICluster {
   }
 
   private role(scope: Construct, id: string, props: Props) {
-    return new iam.Role(scope, `Role-${id}`, {
+    return new iam.Role(scope, `EksRole-${id}`, {
+      roleName: `${id}EksRole`,
       assumedBy: new iam.AccountRootPrincipal()
     });
   }
