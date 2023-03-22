@@ -46,8 +46,8 @@ export class FargateCluster extends Construct implements ICluster {
   }
 
   private role(scope: Construct, id: string, props: Props) {
-    return new iam.Role(scope, `EksRole-${id}`, {
-      roleName: `${id}EksRole`,
+    return new iam.Role(scope, `EksAdminRole-${id}`, {
+      roleName: `${id}AdminRole`,
       assumedBy: new iam.AccountRootPrincipal()
     });
   }
