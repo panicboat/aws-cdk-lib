@@ -1,11 +1,7 @@
 build:
-	docker compose build
-	docker compose run aws-cdk bash -c 'npm install'
-
-bash:
-	docker compose run aws-cdk bash
+	docker compose run --rm app bash -c 'yarn install'
 
 clean:
-	rm -rf node_modules package-lock.json
+	rm -rf node_modules yarn.lock
 	docker compose down
 	docker system prune -a -f --volumes
