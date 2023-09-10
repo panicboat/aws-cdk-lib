@@ -2,60 +2,63 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 interface ICluster {
 }
-export interface Props {
+export interface ClusterProps {
   name: string
-  endpointAccess?: cdk.aws_eks.EndpointAccess
-  version: cdk.aws_eks.KubernetesVersion
   vpc: cdk.aws_ec2.IVpc
+  version: cdk.aws_eks.KubernetesVersion
+  kubectlLayer?: lambda.ILayerVersion;
+  endpointAccess?: cdk.aws_eks.EndpointAccess
 }
 
-export class FargateCluster extends Construct implements ICluster {
-  public readonly cluster!: eks.ICluster;
+export class Cluster extends Construct implements ICluster {
+  public readonly cluster!: eks.Cluster;
 
-  /**
-   * FargateCluster creates a EKS cluster with Fargate profile.
-   * @param id
-   * @param props
-   */
-  constructor(scope: Construct, id: string, props: Props) {
+  constructor(scope: Construct, id: string, props: ClusterProps) {
     super(scope, id);
     this.cluster = this.create(scope, id, props);
   }
 
-  /**
-   * Create a EKS cluster with Fargate profile.
-   * @param id
-   * @param props
-   * @returns eks.ICluster
-   */
-  private create(scope: Construct, id: string, props: Props): eks.ICluster {
-    const mastersRole = this.role(scope, id, props);
-    return new eks.FargateCluster(scope, `EksCluster-${id}`, {
-      version: eks.KubernetesVersion.V1_25,
-      mastersRole: mastersRole,
+  private create(scope: Construct, id: string, props: ClusterProps): eks.Cluster {
+    const cluster = new eks.Cluster(scope, `EksCluster-${id}`, {
       clusterName: props.name,
+      version: props.version,
+      kubectlLayer: props.kubectlLayer,
+      mastersRole: this.clusterRole(scope, id, props),
+      clusterLogging: [
+        eks.ClusterLoggingTypes.API,
+        eks.ClusterLoggingTypes.AUDIT,
+        eks.ClusterLoggingTypes.AUTHENTICATOR,
+        eks.ClusterLoggingTypes.CONTROLLER_MANAGER,
+        eks.ClusterLoggingTypes.SCHEDULER,
+      ],
+      vpc: props.vpc,
+      vpcSubnets: [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }],
+
       outputClusterName: true,
       endpointAccess: props.endpointAccess, // In Enterprise context, you may want to set it to PRIVATE.
-      vpc: props.vpc,
-      vpcSubnets: [{ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }]
     });
+    return cluster;
   }
 
   /**
-   * Create a role for EKS cluster.
+   * Create cluster role.
    * @param scope
    * @param id
    * @param props
    * @returns
    */
-  private role(scope: Construct, id: string, props: Props): iam.IRole {
-    return new iam.Role(scope, `EksAdminRole-${id}`, {
-      roleName: `${id}AdminRole`,
+  private clusterRole(scope: Construct, id: string, props: ClusterProps): iam.IRole {
+    const role = new iam.Role(scope, `EksClusterRole-${id}`, {
+      roleName: `${id}-cluster-role`,
       assumedBy: new iam.AccountRootPrincipal()
     });
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSClusterPolicy'));
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSServicePolicy'));
+    return role;
   }
 }

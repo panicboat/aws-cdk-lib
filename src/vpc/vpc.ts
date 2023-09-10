@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 
 interface IVpc {
 }
-export interface Props {
+export interface VpcProps {
   availabilityZones?: string[]
   cidr?: string
   maxAzs?: number
@@ -19,7 +19,7 @@ export class Vpc extends Construct implements IVpc {
    * Network routing for the public subnets will be configured to allow outbound access directly via an Internet Gateway.
    * Network routing for the private subnets will be configured to allow outbound access via a set of resilient NAT Gateways (one per AZ).
    */
-  constructor(scope: Construct, id: string, props: Props) {
+  constructor(scope: Construct, id: string, props: VpcProps) {
     super(scope, id);
     this.vpc = this.create(scope, id, props)
   }
@@ -31,7 +31,7 @@ export class Vpc extends Construct implements IVpc {
    * @param props
    * @returns ec2.Vpc
    */
-  private create(scope: Construct, id: string, props: Props): ec2.Vpc {
+  private create(scope: Construct, id: string, props: VpcProps): ec2.Vpc {
     return new ec2.Vpc(scope, `Vpc-${id}`, {
       vpcName: id,
       cidr: props.cidr,
