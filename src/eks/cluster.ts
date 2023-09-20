@@ -83,7 +83,7 @@ export class Cluster extends Construct implements ICluster {
           actions: [
             'ssm:GetParameter',
           ],
-          resources: ["arn:aws:ssm:*:${cdk.Stack.of(scope).account}:parameter/*"],
+          resources: [`arn:aws:ssm:*:${cdk.Stack.of(scope).account}:parameter/*`],
         }),
       ],
     }));
