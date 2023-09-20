@@ -59,6 +59,34 @@ export class Cluster extends Construct implements ICluster {
     });
     role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSClusterPolicy'));
     role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSServicePolicy'));
+    role.attachInlinePolicy(new iam.Policy(scope, `EksClusterPolicy-${id}`, {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'eks:ListFargateProfiles',
+            'eks:DescribeNodegroup',
+            'eks:ListNodegroups',
+            'eks:ListUpdates',
+            'eks:AccessKubernetesApi',
+            'eks:ListAddons',
+            'eks:DescribeCluster',
+            'eks:DescribeAddonVersions',
+            'eks:ListClusters',
+            'eks:ListIdentityProviderConfigs',
+            'iam:ListRoles'
+          ],
+          resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'ssm:GetParameter',
+          ],
+          resources: ["arn:aws:ssm:*:${cdk.Stack.of(scope).account}:parameter/*"],
+        }),
+      ],
+    }));
     return role;
   }
 }
