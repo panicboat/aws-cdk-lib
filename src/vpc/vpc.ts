@@ -21,7 +21,7 @@ export class Vpc extends Construct implements IVpc {
    */
   constructor(scope: Construct, id: string, props: VpcProps) {
     super(scope, id);
-    this.vpc = this.create(scope, id, props)
+    this.vpc = this.ec2_vpc(scope, id, props);
   }
 
   /**
@@ -31,7 +31,7 @@ export class Vpc extends Construct implements IVpc {
    * @param props
    * @returns ec2.Vpc
    */
-  private create(scope: Construct, id: string, props: VpcProps): ec2.Vpc {
+  private ec2_vpc(scope: Construct, id: string, props: VpcProps): ec2.Vpc {
     return new ec2.Vpc(scope, `Vpc-${id}`, {
       vpcName: id,
       cidr: props.cidr,
